@@ -24,10 +24,14 @@ def symmetrize_graph(D: nx.DiGraph,
         w = data.get(weight, 1)
         if G.has_edge(u, v):
             old = G[u][v].get(weight, 1)
-            if mode == 'min': new = min(old, w)
-            elif mode == 'max': new = max(old, w)
-            elif mode == 'sum': new = old + w
-            elif mode == 'avg': new = (old + w)/2
+            if mode == 'min':
+                new = min(old, w)
+            elif mode == 'max':
+                new = max(old, w)
+            elif mode == 'sum':
+                new = old + w
+            elif mode == 'avg':
+                new = (old + w) / 2
             else:
                 raise ValueError("unknown mode - get lost!!!!!!!!")
             G[u][v][weight] = new

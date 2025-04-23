@@ -49,3 +49,4 @@ def is_connected(G: nx.Graph) -> bool:
         return nx.is_weakly_connected(G)
     return nx.is_connected(G)
 
+# def laplacian_matrix ????

@@ -4,7 +4,6 @@ import random
 
 def random_sparsifier(G: nx.Graph, p: float = 0.5, seed: int = None) -> nx.Graph:
     """
-
     :param G: directed or undirected graph with arbitrary edge data
     :param p: probability (0 <= p <= 1) to retain each edge
     :param seed: optional random seed

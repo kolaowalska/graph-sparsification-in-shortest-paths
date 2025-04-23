@@ -52,7 +52,7 @@ if __name__ == "__main__":
     ])
     '''
     rs = 42
-    G = generate_random_graph(n=30, k=6, p=0.3, weight_range=(1, 10), seed=rs)
+    G = generate_random_graph(n=20, k=6, p=0.3, weight_range=(1, 10), seed=55)
 
     H_kola = kols_sparsifier(G, k=3, rho=0.65, rescale=True, seed=rs)
     H_k = k_neighbor_sparsifier(G, k=3, seed=rs)
