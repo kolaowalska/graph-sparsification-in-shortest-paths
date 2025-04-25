@@ -1,38 +1,36 @@
-import networkx as nx
+from .base import Sparsifier
+from graphs.graph import Graph
 import math
+import networkx as nx
 
 
-def local_degree_sparsifier(
-        G: nx.DiGraph,
-        alpha: float = 0.5) -> nx.DiGraph:
-    """
-    :param G: directed graph with edge weights as 'weight'
-    :param alpha: edge retention parameter
-    :return: H (nx.DiGraph) - sparsified subgraph
-    """
+class LocalDegreeSparsifier(Sparsifier):
+    def __init__(self, alpha: float = 0.5):
+        assert 0 <= alpha <= 1
+        self._alpha = alpha
 
-    assert 0 <= alpha <= 1
+    def name(self) -> str:
+        return f"local_degree (alpha = {self._alpha})"
 
-    H = nx.DiGraph()
-    H.add_nodes_from(G.nodes(data=True))
+    def sparsify(self, graph: Graph) -> Graph:
+        G = graph.G
+        H = Graph(directed=G.is_directed(),
+                  weighted='weight' in nx.get_edge_attributes(G, 'weight'))
+        H.G.add_nodes_from(G.nodes(data=True))
 
-    for v in G.nodes():
-        out_edges = list(G.out_edges(v, data=True))
-        d_out = len(out_edges)
-        if d_out == 0:
-            continue
+        # if G is directed, then edges := out_edges, degree := out_degree
+        for v in G.nodes():
+            edges = list(G.edges(v, data=True))
+            d_out = len(edges)
+            if d_out == 0:
+                continue
+            k = max(1, math.floor(d_out ** self._alpha))
+            ranked = sorted(edges,
+                            key=lambda e: G.degree(e[1]),
+                            reverse=True)
 
-        # number of neighbors to retain
-        k = max(1, math.floor(d_out ** alpha))
+            for u, w, data in ranked[:k]:
+                H.G.add_edge(u, w, **data)
 
-        # ranking the outgoing edges by the out-degree of their target node
-        ranked_edges = sorted(
-            out_edges,
-            key=lambda e: G.out_degree[e[1]], # zaraz oszaleje czemu to nie dziala
-            reverse=True
-        )
+        return H
 
-        for u, w, data in ranked_edges[:k]:
-            H.add_edge(u, w, **data)
-
-    return H

@@ -1,45 +1,49 @@
-import networkx as nx
+from .base import Sparsifier
+from graphs.graph import Graph
+from graphs.utils import symmetrize_graph
 import random
+import networkx as nx
 
 
-def k_neighbor_sparsifier(
-        G: nx.DiGraph,
-        k: int,
-        seed: int = None) -> nx.DiGraph:
-    """
-    :param G: directed graph with edge weights as 'weight'
-    :param k: number of outgoing edges to keep per node
-    :param seed: optional random seed
-    :return: H (nx.DiGraph) - sparsified subgraph
-    """
+class KNeighborSparsifier(Sparsifier):
+    def __init__(self, k: int, seed: int = None):
+        assert k >= 1
+        self._k = k
+        self._seed = seed
 
-    if seed is not None:
-        random.seed(seed)
+    def name(self) -> str:
+        return f"k_neighbor (k = {self._k})"
 
-    H = nx.DiGraph()
-    H.add_nodes_from(G.nodes(data=True))
+    def sparsify(self, graph: Graph) -> Graph:
+        G = graph.G
+        if G.is_directed():
+            G = symmetrize_graph(G, weight_attr='weight', mode='avg')
+        H = Graph(directed=G.is_directed(),
+                  weighted='weight' in nx.get_edge_attributes(G, 'weight'))
+        H.G.add_nodes_from(G.nodes(data=True))
 
-    for v in G.nodes():
-        out_edges = list(G.out_edges(v, data=True))
-        deg = len(out_edges)
+        if self._seed is not None:
+            random.seed(self._seed)
 
-        if deg <= k:
-            for u, w, data in out_edges:
-                H.add_edge(u, w, **data)
-        else:
-            weights = [data.get('weight', 1) for _, _, data in out_edges]
-            total_weight = sum(weights)
-            probs = [w / total_weight for w in weights]
+        # if G is directed, then edges := out_edges
+        for v in G.nodes():
+            edges = list(G.edges(v, data=True))
+            if len(edges) <= self._k:
+                for u, w, data in edges:
+                    H.G.add_edge(u, w, **data)
+            else:
+                weights = [data.get('weight', 1) for _, _, data in edges]
+                total_weight = sum(weights)
+                probs = [w / total_weight for w in weights]
 
-            selected_edges = random.choices(out_edges, weights=probs, k=k)
+                selected = random.choices(edges, weights=probs, k=self._k)
+                seen = set()
+                for u, w, data in selected:
+                    if (u, w) not in seen:
+                        H.G.add_edge(u, w, **data)
+                        seen.add((u, w))
+                    if len(seen) >= self._k:
+                        break
 
-            selected = set()
-            for u, w, data in selected_edges:
-                if (u, w) not in selected:
-                    H.add_edge(u, w, **data)
-                    selected.add((u, w))
+        return H
 
-                if len(selected) >= k:
-                    break
-
-    return H

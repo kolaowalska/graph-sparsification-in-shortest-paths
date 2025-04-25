@@ -1,92 +1,97 @@
-import networkx as nx
+from .base import Sparsifier
+from graphs.graph import Graph
 import random
 from collections import defaultdict
+import networkx as nx
+# TODO: add user-defined tau
 
 
-def kols_sparsifier(
-        G: nx.DiGraph,
-        k: int = 10,
-        rho: float = 0.5,
-        rescale: bool = True,
-        seed: int = None) -> nx.DiGraph:
-    """
-    performs BFS-based sparsification on a directed, weighted graph G
-    :param G: directed graph with edge weights as 'weight'
-    :param k: number of BFS runs
-    :param rho: target edge retention ratio (0 < rho <= 1)
-    :param rescale: whether to rescale edge weights after sparsification
-    :param seed: optional random seed
-    :return: H (nx.DiGraph) - sparsified subgraph
-    """
+class KOLSSparsifier(Sparsifier):
+    def __init__(self,
+                 k: int = 3,
+                 rho: float = 0.5,
+                 rescale: bool = True,
+                 seed: int = None):
+        assert 0 < rho <= 1
+        self._k = k
+        self._rho = rho
+        self._rescale = rescale
+        self._seed = seed
 
-    if seed is not None:
-        random.seed(seed)
+    def name(self) -> str:
+        return (f"kols (k = {self._k}, "
+                f"rho = {self._rho}, "
+                f"rescale = {self._rescale})")
 
-    edge_freq = defaultdict(int)
-    nodes = list(G.nodes)
+    def sparsify(self, graph: Graph) -> Graph:
+        G = graph.G
+        if self._seed is not None:
+            random.seed(self._seed)
 
-    for _ in range(k):
-        start = random.choice(nodes)
-        visited = set()
-        queue = [start]
+        edge_freq = defaultdict(int)
+        nodes = list(G.nodes)
 
-        while queue:
-            current = queue.pop(0)
-            if current in visited:
-                continue
-            visited.add(current)
+        for _ in range(self._k):
+            start = random.choice(nodes)
+            visited, queue = set(), [start]
 
-            for neighbor in G.successors(current):
-                edge = (current, neighbor)
-                edge_freq[edge] += 1
-                if neighbor not in visited:
-                    queue.append(neighbor)
+            while queue:
+                current = queue.pop(0)
+                if current in visited:
+                    continue
+                visited.add(current)
 
-    # frequency normalization
-    total_freq = sum(edge_freq.values())
-    if total_freq == 0:
-        raise ValueError("no edges traversed during bfs :(")
+                if G.is_directed():
+                    neighbors = list(G.successors(current))
+                else:
+                    neighbors = list(G.neighbors(current))
 
-    frequencies = {e: f/total_freq for e, f in edge_freq.items()}
+                for nb in neighbors:
+                    if G.is_directed():
+                        edge_freq[(current, nb)] += 1
+                    else:
+                        edge_freq[(min(current, nb), max(current, nb))] += 1
 
-    # estimating τ as median frequency (can be user-defined)
-    sorted_freqs = sorted(frequencies.values())
-    tau = sorted_freqs[len(sorted_freqs) // 2] if sorted_freqs else 1e-9
+                    if nb not in visited:
+                        queue.append(nb)
 
-    # computing retention scores (min(1, freq / τ))
-    scores = {e: min(1.0, frequencies[e] / tau) for e in frequencies}
+        total_frequencies = sum(edge_freq.values())
+        if total_frequencies == 0:
+            return Graph.from_nx(G)  # nic si eni estalo :((((((((((((((((
 
-    # sorting edges by score descending and keeping top rho-fraction
-    no_of_edges_to_keep = max(1, int(rho * G.number_of_edges()))
-    top_edges = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:no_of_edges_to_keep]
+        frequencies = {e: f / total_frequencies for e, f in edge_freq.items()}
+        median = sorted(frequencies.values())[len(frequencies) // 2]
+        tau = median
 
-    # computing sampling probabilities
-    # probs = {e : min(1.0, (frequencies[e] / tau)) for e in frequencies}
+        # computing retention scores (min(1, freq / τ))
+        scores = {e: min(1.0, frequencies[e] / tau) for e in frequencies}
 
-    H = nx.DiGraph()
-    H.add_nodes_from(G.nodes(data=True))
+        # sorting edges by score descending and keeping top rho-fraction
+        keep_count = max(1, int(self._rho * G.number_of_edges()))
+        top = sorted(scores.items(),
+                     key=lambda x: x[1],
+                     reverse=True)[:keep_count]
 
-    for (u, v), _ in top_edges:
-        original_weight = G[u][v].get("weight", 1)
-        frequency = edge_freq.get((u, v), 0)
-        if rescale:
-            weight = round(original_weight * frequency / k)
-        else:
-            weight = original_weight
-        H.add_edge(u, v, weight=weight)
+        H = Graph(directed=G.is_directed(),
+                  weighted='weight' in nx.get_edge_attributes(G, 'weight'))
+        H.G.add_nodes_from(G.nodes(data=True))
 
-    ''' old version:
-    for (u, v), p in probs.items():
-        if random.random() <= p:
-            original_weight = G[u][v].get("weight", 1)
-            frequency = edge_freq[(u, v)]
+        for (u, v), _ in top:
+            og_weight = G[u][v].get('weight', 1)
+            f = edge_freq[(u, v)]
+            new_weight = round(og_weight * f / self._k) if self._rescale else og_weight
+            H.G.add_edge(u, v, weight=new_weight)
 
-            if rescale:
-                new_weight = original_weight * frequency / k
-            else:
-                new_weight = original_weight
+        # nowa atrakcja (ktora nie dziala):
+        # zapewnienie spojnosci poprzez odbudowanie mostow dla grafow nieskierowanych
+        if not G.is_directed():
+            if not nx.is_connected(H.G):
+                components = list(nx.connected_components(H.G))
+                for component in components:
+                    for u, v in nx.bridges(G):
+                        c_u = next(c for c in components if u in c)
+                        c_v = next(c for c in components if v in c)
+                        if c_u != c_v:
+                            H.G.add_edge(u, v, weight=G[u][v].get('weight', 1))
 
-            H.add_edge(u, v, weight=new_weight)
-    '''
-
-    return H
+        return H

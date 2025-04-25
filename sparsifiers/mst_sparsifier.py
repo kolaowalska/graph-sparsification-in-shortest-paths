@@ -1,21 +1,24 @@
+from .base import Sparsifier
+from graphs.graph import Graph
 import networkx as nx
-from utils.graph_utils import symmetrize_graph
+from graphs.utils import symmetrize_graph
 
 
-def mst_sparsifier(G: nx.Graph) -> nx.Graph:
-    """
-    :param G: directed/undirected graph with edge weights as 'weight'
-    :return: H (nx.DiGraph) - sparsified subgraph
-    """
+class MSTSparsifier(Sparsifier):
+    def name(self) -> str:
+        return "mst"
 
-    if G.is_directed():
-        G = symmetrize_graph(G, weight='weight', mode='min')
+    def sparsify(self, graph: Graph) -> Graph:
+        G0 = graph.G
+        G = G0
+        if G.is_directed():
+            G = symmetrize_graph(G, weight_attr='weight', mode='avg')
 
-    H = nx.Graph()
-    H.add_nodes_from(G.nodes(data=True))
+        H = Graph(directed=False,
+                  weighted='weight' in nx.get_edge_attributes(G, 'weight'))
+        H.G.add_nodes_from(G.nodes(data=True))
 
-    # nx’s kruskal - yields the edges of an mst in increasing‐weight order
-    for u, v, data in nx.minimum_spanning_edges(G, data=True, weight='weight'):
-        H.add_edge(u, v, **data)
+        for u, v, data in nx.minimum_spanning_edges(G, data=True, weight='weight'):
+            H.G.add_edge(u, v, **data)
 
-    return H
+        return H

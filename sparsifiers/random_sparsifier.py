@@ -1,24 +1,28 @@
+from .base import Sparsifier
+from graphs.graph import Graph
 import networkx as nx
 import random
 
 
-def random_sparsifier(G: nx.Graph, p: float = 0.5, seed: int = None) -> nx.Graph:
-    """
-    :param G: directed or undirected graph with arbitrary edge data
-    :param p: probability (0 <= p <= 1) to retain each edge
-    :param seed: optional random seed
-    :return: sparsified subgraph H of the same type as G
-    """
-    assert 0 <= p <= 1
+class RandomSparsifier(Sparsifier):
+    def __init__(self, p: float = 0.5, seed: int = None):
+        self._p = p
+        self._seed = seed
 
-    if seed is not None:
-        random.seed(seed)
+    def name(self): return f"random (p = {self._p})"
 
-    H = nx.DiGraph() if G.is_directed() else nx.Graph()
-    H.add_nodes_from(G.nodes(data=True))
+    def sparsify(self, graph: Graph) -> Graph:
+        G = graph.G
 
-    for u, v, data in G.edges(data=True):
-        if random.random() < p:
-            H.add_edge(u, v, **data)
+        H = Graph(directed=G.is_directed(),
+                  weighted='weight' in nx.get_edge_attributes(G, 'weight'))
 
-    return H
+        H.G.add_nodes_from(G.nodes(data=True))
+
+        if self._seed is not None:
+            random.seed(self._seed)
+        for u, v, data in G.edges(data=True):
+            if random.random() < self._p:
+                H.G.add_edge(u, v, **data)
+
+        return H
