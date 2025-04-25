@@ -1,4 +1,3 @@
-import networkx as nx
 from graphs.generators import generate_random_graph
 from graphs.graph import Graph
 from sparsifiers.kols_sparsifier import KOLSSparsifier
@@ -12,7 +11,7 @@ from metrics.collector import MetricsCollector
 
 def main():
     wrapper = Graph.from_nx(
-        generate_random_graph(40, 5, 0.3, (1, 10), 43, directed=True)
+        generate_random_graph(40, 5, 0.3, (1, 10), 43, directed=False)
     )
     collector = MetricsCollector(wrapper)
 

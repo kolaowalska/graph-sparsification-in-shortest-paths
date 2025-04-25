@@ -27,7 +27,7 @@ def generate_random_graph(n=30, k=8, p=0.25, weight_range=(1, 10), seed=None, di
                 weight2 = random.randint(*weight_range)
                 g.add_edge(tgt, src, weight=weight2)
         else:
-            weight=random.randint(*weight_range)
+            weight = random.randint(*weight_range)
             g.add_edge(u, v, weight=weight)
 
     return g
