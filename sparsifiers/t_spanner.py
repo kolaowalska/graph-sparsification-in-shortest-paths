@@ -1,0 +1,46 @@
+import math
+import networkx as nx
+from .base import Sparsifier
+from graphs.utils import symmetrize_graph
+from graphs.graph import Graph
+
+
+class TSpannerSparsifier(Sparsifier):
+    def __init__(self, t: float = 2.0):
+        assert t >= 1.0
+        self._t = t
+
+    def name(self) -> str:
+        return f"t-spanner (t={self._t})"
+
+    def sparsify(self, graph: Graph) -> Graph:
+        G0 = getattr(graph, '_G', graph)
+        directed = G0.is_directed()
+
+        G = symmetrize_graph(G0) if directed else G0
+        H = nx.DiGraph() if directed else nx.Graph()
+        H.add_nodes_from(G.nodes(data=True))
+
+        edges = sorted(
+            G.edges(data=True),
+            key=lambda e: e[2].get('weight', 1.0)
+        )
+
+        for u, v, data in edges:
+            w = data.get('weight', 1.0)
+            try:
+                d = nx.shortest_path_length(H, u, v, weight='weight')
+            except (nx.NetworkXNoPath, nx.NodeNotFound):
+                d = math.inf  # ??? moze wypadaloby to ladniej obsluzyc
+
+            if d > self._t * w:
+                if directed:
+                    if G0.has_edge(u, v):
+                        H.add_edge(u, v, **G0[u][v])
+                    if G0.has_edge(v, u):
+                        H.add_edge(v, u, **G0[v][u])
+                else:
+                    H.add_edge(u, v, **data)
+
+        return Graph.from_nx(H)
+

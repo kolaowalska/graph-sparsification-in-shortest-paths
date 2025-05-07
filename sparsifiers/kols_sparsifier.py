@@ -20,8 +20,7 @@ class KOLSSparsifier(Sparsifier):
 
     def name(self) -> str:
         return (f"kols (k = {self._k}, "
-                f"rho = {self._rho}, "
-                f"rescale = {self._rescale})")
+                f"rho = {self._rho}")
 
     def sparsify(self, graph: Graph) -> Graph:
         G = graph.G

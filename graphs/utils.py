@@ -17,7 +17,7 @@ def symmetrize_graph(
     """
 
     if not D.is_directed():
-        raise ValueError("bomba bomba bomba graf jest nieskierowany")
+        return D
 
     G = nx.Graph()
     G.add_nodes_from(D.nodes(data=True))
