@@ -1,0 +1,9 @@
+2025-05-20 21:37:52,881 [ERROR] error processing eco.edgelist: dict contains fields not in fieldnames: 'degree_distribution_sparsified_15', 'degree_distribution_sparsified_18', 'degree_distribution_sparsified_23'
+Traceback (most recent call last):
+  File "C:\Users\olala\Desktop\sem_6\prosemi\graph_sparsification\experiments\run_experiments.py", line 54, in main
+    writer.writerow(row)
+  File "C:\Users\olala\AppData\Local\Programs\Python\Python39\lib\csv.py", line 154, in writerow
+    return self.writer.writerow(self._dict_to_list(rowdict))
+  File "C:\Users\olala\AppData\Local\Programs\Python\Python39\lib\csv.py", line 149, in _dict_to_list
+    raise ValueError("dict contains fields not in fieldnames: "
+ValueError: dict contains fields not in fieldnames: 'degree_distribution_sparsified_15', 'degree_distribution_sparsified_18', 'degree_distribution_sparsified_23'

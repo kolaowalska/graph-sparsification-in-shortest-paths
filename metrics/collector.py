@@ -1,4 +1,4 @@
-from graphs.graph import Graph
+from src.graph_pipeline.core import GraphWrapper
 from metrics.structural import (
     degree_distribution,
     is_connected,
@@ -16,15 +16,15 @@ from metrics.distance import (
 
 
 class MetricsCollector:
-    def __init__(self, original: Graph):
+    def __init__(self, original: GraphWrapper):
         self.original = original
         self.results = {}
-        G0 = getattr(original, '_G', original)
+        G0 = getattr(original, 'G', getattr(original, '_G', original))
         self._x = {v: G0.degree(v, weight='weight') for v in G0.nodes()}
 
-    def add(self, name: str, sparsified: Graph):
-        G = getattr(self.original, '_G', self.original)
-        H = getattr(sparsified, '_G', sparsified)
+    def add(self, name: str, sparsified: GraphWrapper):
+        G = getattr(self.original, 'G', getattr(self.original, '_G', self.original))
+        H = getattr(sparsified, 'G', getattr(sparsified, '_G', sparsified))
 
         # distance metrics
         G_dist = apsp_matrix(G, weight='weight')

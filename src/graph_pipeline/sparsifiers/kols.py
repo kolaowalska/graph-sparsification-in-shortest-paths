@@ -1,9 +1,11 @@
 from .base import Sparsifier
 from graphs.graph import Graph
+from src.graph_pipeline.core import GraphWrapper
 import random
 from collections import defaultdict
 import networkx as nx
 # TODO: add user-defined tau
+# TODO: Wrapper
 
 
 class KOLSSparsifier(Sparsifier):
@@ -22,8 +24,10 @@ class KOLSSparsifier(Sparsifier):
         return (f"kols (k = {self._k}, "
                 f"rho = {self._rho}")
 
-    def sparsify(self, graph: Graph) -> Graph:
+    def sparsify(self, graph: GraphWrapper, rho: float = None) -> GraphWrapper:
+        assert 0 <= rho <= 1
         G = graph.G
+
         if self._seed is not None:
             random.seed(self._seed)
 
@@ -40,23 +44,18 @@ class KOLSSparsifier(Sparsifier):
                     continue
                 visited.add(current)
 
-                if G.is_directed():
-                    neighbors = list(G.successors(current))
-                else:
-                    neighbors = list(G.neighbors(current))
+                neighbors = list(G.successors(current) if G.is_directed() else G.neighbors(current))
 
                 for nb in neighbors:
-                    if G.is_directed():
-                        edge_freq[(current, nb)] += 1
-                    else:
-                        edge_freq[(min(current, nb), max(current, nb))] += 1
+                    edge = (current, nb) if G.is_directed() else tuple(sorted([current, nb]))
+                    edge_freq[edge] += 1
 
                     if nb not in visited:
                         queue.append(nb)
 
         total_frequencies = sum(edge_freq.values())
         if total_frequencies == 0:
-            return Graph.from_nx(G)  # nic si eni estalo :((((((((((((((((
+            return GraphWrapper(G.nodes(data=True), G.edges(data=True), directed=G.is_directed())  # nic si eni estalo :((((((((((((((((
 
         frequencies = {e: f / total_frequencies for e, f in edge_freq.items()}
         median = sorted(frequencies.values())[len(frequencies) // 2]
@@ -66,31 +65,26 @@ class KOLSSparsifier(Sparsifier):
         scores = {e: min(1.0, frequencies[e] / tau) for e in frequencies}
 
         # sorting edges by score descending and keeping top rho-fraction
-        keep_count = max(1, int(self._rho * G.number_of_edges()))
+        rho = rho if rho is not None else self._rho
+        keep_count = max(1, int(rho * G.number_of_edges()))
         top = sorted(scores.items(),
                      key=lambda x: x[1],
                      reverse=True)[:keep_count]
 
-        H = Graph(directed=G.is_directed(),
-                  weighted='weight' in nx.get_edge_attributes(G, 'weight'))
-        H.G.add_nodes_from(G.nodes(data=True))
-
+        final_edges = []
         for (u, v), _ in top:
             og_weight = G[u][v].get('weight', 1)
             f = edge_freq[(u, v)]
             new_weight = round(og_weight * f / self._k) if self._rescale else og_weight
-            H.G.add_edge(u, v, weight=new_weight)
+            final_edges.append((u, v, {'weight': new_weight}))
+
+        H_wrapper = GraphWrapper(G.nodes(data=True), final_edges, directed=G.is_directed())
 
         # nowa atrakcja (ktora nie dziala):
         # zapewnienie spojnosci poprzez odbudowanie mostow dla grafow nieskierowanych
-        if not G.is_directed():
-            if not nx.is_connected(H.G):
-                components = list(nx.connected_components(H.G))
-                for component in components:
-                    for u, v in nx.bridges(G):
-                        c_u = next(c for c in components if u in c)
-                        c_v = next(c for c in components if v in c)
-                        if c_u != c_v:
-                            H.G.add_edge(u, v, weight=G[u][v].get('weight', 1))
+        if not G.is_directed() and not nx.is_connected(H_wrapper.G):
+            for u, v in nx.bridges(G):
+                if not H_wrapper.G.has_edge(u, v):
+                    H_wrapper.G.add_edge(u, v, weight=G[u][v].get('weight', 1))
 
-        return H
+        return H_wrapper

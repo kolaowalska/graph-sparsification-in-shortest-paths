@@ -1,0 +1,8 @@
+networkx
+numpy
+pandas
+fastapi
+uvicorn
+pydantic
+sqlalchemy
+tqdm

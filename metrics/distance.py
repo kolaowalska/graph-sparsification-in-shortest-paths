@@ -1,6 +1,5 @@
 import networkx as nx
 import math
-import numbers
 from typing import Any, Dict, Optional, Union
 
 
@@ -10,11 +9,13 @@ def apsp_matrix(
 ) -> Dict[Any, Dict[Any, float]]:
     """
     computes all-pairs shortest-path distances for a given graph G
-    if weight is None uses unweighted BFS (edge length = 1), otherwise uses johnson with positive weights falling back to floyd-warshall
+    if weight is None uses unweighted BFS (edge length = 1),
+    otherwise just uses johnson with positive weights falling back to floyd-warshall
 
     returns dist[u][v] = float distance of math.inf if unreachable
     """
-    G = getattr(G_input, '_G', G_input)
+    G = getattr(G_input, 'G', getattr(G_input, '_G', G_input))
+
     if weight is None:
         raw = dict(nx.all_pairs_shortest_path_length(G))
     else:
@@ -67,7 +68,7 @@ def local_stretch(
         G_dist: Dict[Any, Dict[Any, float]],
         H_dist: Dict[Any, Dict[Any, float]]
 ) -> Dict[Any, float]:
-    stretch = {}
+    stretch: Dict[Any, float] = {}
     for u, row in G_dist.items():
         for v, dG in row.items():
             if u != v and dG > 0 and not math.isinf(dG):

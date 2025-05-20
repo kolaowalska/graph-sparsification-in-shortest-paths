@@ -2,7 +2,7 @@ import math
 import networkx as nx
 from .base import Sparsifier
 from graphs.utils import symmetrize_graph
-from graphs.graph import Graph
+from src.graph_pipeline.core import GraphWrapper
 
 
 class TSpannerSparsifier(Sparsifier):
@@ -13,11 +13,11 @@ class TSpannerSparsifier(Sparsifier):
     def name(self) -> str:
         return f"t-spanner (t={self._t})"
 
-    def sparsify(self, graph: Graph) -> Graph:
-        G0 = getattr(graph, '_G', graph)
-        directed = G0.is_directed()
+    def sparsify(self, graph: GraphWrapper, rho: float = None) -> GraphWrapper:
+        G = graph.G
+        directed = G.is_directed()
 
-        G = symmetrize_graph(G0) if directed else G0
+        G = symmetrize_graph(G) if directed else G
         H = nx.DiGraph() if directed else nx.Graph()
         H.add_nodes_from(G.nodes(data=True))
 
@@ -35,12 +35,12 @@ class TSpannerSparsifier(Sparsifier):
 
             if d > self._t * w:
                 if directed:
-                    if G0.has_edge(u, v):
-                        H.add_edge(u, v, **G0[u][v])
-                    if G0.has_edge(v, u):
-                        H.add_edge(v, u, **G0[v][u])
+                    if G.has_edge(u, v):
+                        H.add_edge(u, v, **G[u][v])
+                    if G.has_edge(v, u):
+                        H.add_edge(v, u, **G[v][u])
                 else:
                     H.add_edge(u, v, **data)
 
-        return Graph.from_nx(H)
+        return GraphWrapper(G.nodes(data=True), H.edges(data=True), directed=directed)
 

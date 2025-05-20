@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from graphs.graph import Graph
+from src.graph_pipeline.core import GraphWrapper
 
 
 class Sparsifier(ABC):
@@ -9,7 +9,7 @@ class Sparsifier(ABC):
         pass
 
     @abstractmethod
-    def sparsify(self, graph: Graph) -> Graph:
+    def sparsify(self, graph: GraphWrapper) -> GraphWrapper:
         """zwraca przerzedzony zesparsyfikowany przesparsyfikowany graf"""
         pass
 

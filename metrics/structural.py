@@ -7,7 +7,7 @@ from graphs.utils import symmetrize_graph
 def degree_distribution(
         G_input: Union[nx.Graph, object]
 ) -> Union[Dict[int, float], Dict[str, Dict[int, float]]]:
-    G = getattr(G_input, '_G', G_input)
+    G = getattr(G_input, 'G', getattr(G_input, '_G', G_input))
     n = G.number_of_nodes()
     if n == 0:
         return {}
@@ -15,17 +15,28 @@ def degree_distribution(
     if G.is_directed():
         in_counts = Counter(dict(G.in_degree()).values())
         out_counts = Counter(dict(G.out_degree()).values())
+
+        total_in = sum(in_counts.values())
+        total_out = sum(out_counts.values())
+
+        in_dist = {d: c / total_in for d, c in in_counts.items()} if total_in > 0 else {}
+        out_dist = {d: c / total_out for d, c in out_counts.items()} if total_out > 0 else {}
+
         return {
-            'in': {d: c / n for d, c in in_counts.items()},
-            'out': {d: c / n for d, c in out_counts.items()}
+            'in': in_dist,
+            'out': out_dist
         }
 
     counts = Counter(dict(G.degree()).values())
-    return {d: c / n for d, c in counts.items()}
+    total_counts = sum(counts.values())
+
+    if total_counts == 0:
+        return {}
+    return {d: c / total_counts for d, c in counts.items()}
 
 
 def is_connected(G_input: Union[nx.Graph, object]) -> bool:
-    G = getattr(G_input, '_G', G_input)
+    G = getattr(G_input, 'G', getattr(G_input, '_G', G_input))
     if G.is_directed():
         return nx.is_weakly_connected(G)
     return nx.is_connected(G)
@@ -38,7 +49,7 @@ def laplacian_quadratic_form(
     x: Optional[Dict[Any, float]] = None
 ) -> float:
 
-    G = getattr(G_input, '_G', G_input)
+    G = getattr(G_input, 'G', getattr(G_input, '_G', G_input))
     if G.is_directed():
         G = symmetrize_graph(G)
 
