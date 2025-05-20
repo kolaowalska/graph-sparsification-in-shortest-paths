@@ -11,7 +11,7 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 async def upload_graph(file: UploadFile = File(...)):
     ext = Path(file.filename).suffix.lower()
     if ext not in {'.edgelist', '.txt', '.mtx', '.csv'}:
-        raise HTTPException(status_code=400, detail="Unsupported file type")
+        raise HTTPException(status_code=400, detail="unsupported file type")
     file_id = f"{uuid.uuid4()}{ext}"
     dest = UPLOAD_DIR / file_id
     dest.write_bytes(await file.read())

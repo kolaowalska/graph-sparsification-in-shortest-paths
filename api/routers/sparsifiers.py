@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from src.graph_pipeline.parsers import infer_and_parse
 from src.graph_pipeline.sparsifiers import sparsifiers_registry
-from src.graph_pipeline.metrics import compute_metrics
+from src.graph_pipeline.flatten_metrics import compute_metrics
 from pathlib import Path
 
 router = APIRouter(prefix="/sparsifiers", tags=["sparsifiers"])
@@ -23,9 +23,9 @@ def get_methods():
 def apply_sparsifier(req: SparsifyRequest):
     path = Path("data/uploaded") / req.file_id
     if not path.exists():
-        raise HTTPException(status_code=404, detail="Graph not found")
+        raise HTTPException(status_code=404, detail="graph not found")
     if req.method not in sparsifiers_registry:
-        raise HTTPException(status_code=400, detail="Method not supported")
+        raise HTTPException(status_code=400, detail="method not supported")
 
     G = infer_and_parse(path)
     H = sparsifiers_registry[req.method](G, req.rho)

@@ -6,3 +6,4 @@ uvicorn
 pydantic
 sqlalchemy
 tqdm
+PyYAML

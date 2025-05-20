@@ -47,25 +47,5 @@ def compute_metrics(original: GraphWrapper, sparsified: GraphWrapper, method_nam
 
     return flattened_results
 
-    '''
-        if isinstance(results['degree_distribution_original'], dict):
-        for direction, distribution in results['degree_distribution_original'].items():
-            for degree, frequency in distribution.items():
-                flattened_results[f'degree_distribution_original_{direction}_{degree}'] = frequency
-    else:
-        for degree, frequency in results['degree_distribution_original'].items():
-            flattened_results[f'degree_distribution_original_{degree}'] = frequency
-
-    if isinstance(results['degree_distribution_sparsified'], dict):
-        for direction, distribution in results['degree_distribution_sparsified'].items():
-            for degree, frequency in distribution.items():
-                flattened_results[f'degree_distribution_sparsified_{direction}_{degree}'] = frequency
-    else:
-        for degree, frequency in results['degree_distribution_sparsified'].items():
-            flattened_results[f'degree_distribution_sparsified_{degree}'] = frequency
-
-    return flattened_results
-    
-    '''
 
 

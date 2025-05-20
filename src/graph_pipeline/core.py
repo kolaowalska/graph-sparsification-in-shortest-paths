@@ -2,7 +2,7 @@ import networkx as nx
 
 
 class GraphWrapper:
-    def __init__(self, nodes, edges, directed=False):
+    def __init__(self, nodes, edges, directed=False, graph_family="unknown", original_filename="unknown"):
         self.is_directed = directed
         self.G = nx.DiGraph() if directed else nx.Graph()
         self.G.add_nodes_from(nodes)
@@ -11,6 +11,8 @@ class GraphWrapper:
                 self.G.add_edge(u, v, **w)
             else:
                 self.G.add_edge(u, v, weight=w)
+        self.graph_family = graph_family
+        self.original_filename = original_filename
 
     @property
     def nodes(self):
@@ -28,3 +30,7 @@ class GraphWrapper:
     @property
     def m(self):
         return self.G.number_of_edges()
+
+    def __repr__(self):
+        return(f"GraphWrapper (n={self.n}, m={self.m}, directed={self.is_directed}, "
+               f"family='{self.graph_family}', file='{self.original_filename}')")

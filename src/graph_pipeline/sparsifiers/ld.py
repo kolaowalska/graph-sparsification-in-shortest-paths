@@ -5,7 +5,7 @@ import math
 
 class LocalDegreeSparsifier(Sparsifier):
     def name(self) -> str:
-        return f"local_degree (alpha = {self._alpha})"
+        return f"local_degree"
 
     def sparsify(self, graph: GraphWrapper, rho: float = None) -> GraphWrapper:
         assert 0 <= rho <= 1
@@ -27,7 +27,7 @@ class LocalDegreeSparsifier(Sparsifier):
             top_k = ranked[:k]
 
             for u, w, data in top_k:
-                kept_edges.add((u, w, data))
+                kept_edges.add((u, w, data.get('weight', 1)))
 
         final_edges = list(kept_edges)
         return GraphWrapper(G.nodes(data=True), final_edges, directed=G.is_directed())
