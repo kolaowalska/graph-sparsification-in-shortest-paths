@@ -1,5 +1,4 @@
 from .base import Sparsifier
-from graphs.graph import Graph
 from src.graph_pipeline.core import GraphWrapper
 import random
 from collections import defaultdict

@@ -1,13 +1,13 @@
-from graphs.generators import generate_random_graph
-from graphs.graph import Graph
+from unused.graphs import generate_random_graph
+from unused.graphs import Graph
 from src.graph_pipeline.sparsifiers.kols import KOLSSparsifier
 from src.graph_pipeline.sparsifiers.k_neighbor import KNeighborSparsifier
 from src.graph_pipeline.sparsifiers.ld import LocalDegreeSparsifier
 from src.graph_pipeline.sparsifiers.mst import MSTSparsifier
 from src.graph_pipeline.sparsifiers.random import RandomSparsifier
 from src.graph_pipeline.sparsifiers.t_spanner import TSpannerSparsifier
-from visualization.drawer import GraphDrawer
-from visualization.summary import summarize_results
+from unused.visualization.drawer import GraphDrawer
+from unused.visualization.summary import summarize_results
 from metrics.collector import MetricsCollector
 
 

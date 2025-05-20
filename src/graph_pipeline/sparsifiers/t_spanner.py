@@ -1,7 +1,7 @@
 import math
 import networkx as nx
 from .base import Sparsifier
-from graphs.utils import symmetrize_graph
+from unused.graphs.utils import symmetrize_graph
 from src.graph_pipeline.core import GraphWrapper
 
 
