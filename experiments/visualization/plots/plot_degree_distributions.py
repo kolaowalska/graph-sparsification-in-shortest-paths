@@ -47,8 +47,11 @@ def plot_degree_distributions(df: pd.DataFrame, plots_dir: Path):
             fig.suptitle(f'degree distribution for directed draph: {graph_name}', fontsize=18)
 
             original_in_row = graph_df[graph_df['method'] == graph_df['method'].iloc[0]].iloc[0]
-            orig_in_deg_vals, orig_in_freq_vals = _get_degree_data_from_row(original_in_row,
-                                                                            'degree_distribution_original_in_')
+            orig_in_deg_vals, orig_in_freq_vals = _get_degree_data_from_row(
+                original_in_row,
+                'degree_distribution_original_in_'
+            )
+
             if orig_in_deg_vals:
                 axes[0].plot(
                     orig_in_deg_vals,
@@ -60,8 +63,11 @@ def plot_degree_distributions(df: pd.DataFrame, plots_dir: Path):
                     linewidth=2
                 )
 
-            orig_out_deg_vals, orig_out_freq_vals = _get_degree_data_from_row(original_in_row,
-                                                                              'degree_distribution_original_out_')
+            orig_out_deg_vals, orig_out_freq_vals = _get_degree_data_from_row(
+                original_in_row,
+                'degree_distribution_original_out_'
+            )
+
             if orig_out_deg_vals:
                 axes[1].plot(
                     orig_out_deg_vals,
@@ -81,17 +87,31 @@ def plot_degree_distributions(df: pd.DataFrame, plots_dir: Path):
                     continue
                 method_row = graph_df[graph_df['method'] == method].iloc[0]
 
-                spars_in_deg_vals, spars_in_freq_vals = _get_degree_data_from_row(method_row,
-                                                                                  'degree_distribution_sparsified_in_')
-                if spars_in_deg_vals:
-                    axes[0].plot(spars_in_deg_vals, spars_in_freq_vals, marker='x', linestyle='--',
-                                 label=f'sparsified in-degree ({method})')
+                spars_in_deg_vals, spars_in_freq_vals = _get_degree_data_from_row(
+                    method_row,
+                    'degree_distribution_sparsified_in_'
+                )
 
-                spars_out_deg_vals, spars_out_freq_vals = _get_degree_data_from_row(method_row,
-                                                                                    'degree_distribution_sparsified_out_')
+                if spars_in_deg_vals:
+                    axes[0].plot(
+                        spars_in_deg_vals,
+                        spars_in_freq_vals,
+                        marker='x',
+                        linestyle='--',
+                        label=f'sparsified in-degree ({method})')
+
+                spars_out_deg_vals, spars_out_freq_vals = _get_degree_data_from_row(
+                    method_row,
+                    'degree_distribution_sparsified_out_'
+                )
+
                 if spars_out_deg_vals:
-                    axes[1].plot(spars_out_deg_vals, spars_out_freq_vals, marker='x', linestyle='--',
-                                 label=f'sparsified out-degree ({method})')
+                    axes[1].plot(
+                        spars_out_deg_vals,
+                        spars_out_freq_vals,
+                        marker='x',
+                        linestyle='--',
+                        label=f'sparsified out-degree ({method})')
 
             axes[0].set_title('in-degree distribution', fontsize=14)
             axes[0].set_xlabel('degree', fontsize=12)
@@ -115,27 +135,47 @@ def plot_degree_distributions(df: pd.DataFrame, plots_dir: Path):
             plt.figure(figsize=(12, 7))
 
             original_row = graph_df[graph_df['method'] == graph_df['method'].iloc[0]].iloc[0]
-            orig_deg_vals, orig_freq_vals = _get_degree_data_from_row(original_row, 'degree_distribution_original_')
-            if orig_deg_vals:
-                plt.plot(orig_deg_vals, orig_freq_vals, marker='o', linestyle='-', label='original', color='black',
-                         linewidth=2)
 
             for method in graph_df['method'].unique():
                 if method == original_row['method']:
                     continue
                 method_row = graph_df[graph_df['method'] == method].iloc[0]
 
-                spars_deg_vals, spars_freq_vals = _get_degree_data_from_row(method_row,
-                                                                            'degree_distribution_sparsified_')
+                spars_deg_vals, spars_freq_vals = _get_degree_data_from_row(
+                    method_row,
+                    'degree_distribution_sparsified_'
+                )
+
                 if spars_deg_vals:
-                    plt.plot(spars_deg_vals, spars_freq_vals, marker='x', linestyle='--',
-                             label=f'sparsified ({method})')
+                    plt.plot(
+                        spars_deg_vals,
+                        spars_freq_vals,
+                        marker='o',
+                        linestyle='--',
+                        label=f'sparsified ({method})'
+                    )
+
+            orig_deg_vals, orig_freq_vals = _get_degree_data_from_row(
+                original_row,
+                'degree_distribution_original_'
+            )
+
+            if orig_deg_vals:
+                plt.plot(
+                    orig_deg_vals,
+                    orig_freq_vals,
+                    marker='o',
+                    linestyle='-',
+                    label='original',
+                    color='black',
+                    linewidth=2
+                )
 
             plt.title(f'degree distribution for undirected graph: {graph_name}', fontsize=16)
             plt.xlabel('degree', fontsize=12)
             plt.ylabel('frequency', fontsize=12)
             plt.legend(fontsize=10)
-            plt.grid(True, linestyle='--', alpha=0.7)
+            plt.grid(True, linestyle='-', alpha=0.7)
             plt.tight_layout()
             plot_filename = plots_dir / f'degree_distribution_undirected_{graph_name}.png'
             plt.savefig(plot_filename)

@@ -48,7 +48,6 @@ def laplacian_quadratic_form(
     G_input: Union[nx.Graph, object],
     x: Optional[Dict[Any, float]] = None
 ) -> float:
-
     G = getattr(G_input, 'G', getattr(G_input, '_G', G_input))
     if G.is_directed():
         G = symmetrize_graph(G)

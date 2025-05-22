@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 from tqdm import tqdm
-from typing import Dict, Any, List, Set
+from typing import List, Set
 
 from src.graph_pipeline.parsers import infer_and_parse
 from src.graph_pipeline.sparsifiers import sparsifiers_registry
