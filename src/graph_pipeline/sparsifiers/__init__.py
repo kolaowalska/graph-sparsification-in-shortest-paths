@@ -5,7 +5,6 @@ from .mst import MSTSparsifier
 from .ld import LocalDegreeSparsifier
 from .t_spanner import TSpannerSparsifier
 
-# TODO
 
 seed = 39
 

@@ -1,5 +1,5 @@
 from .base import Sparsifier
-from src.graph_pipeline.core import GraphWrapper
+from src.graph_pipeline.utils.core import GraphWrapper
 from unused.graphs.utils import symmetrize_graph
 import networkx as nx
 

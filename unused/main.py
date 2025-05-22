@@ -8,7 +8,7 @@ from src.graph_pipeline.sparsifiers.random import RandomSparsifier
 from src.graph_pipeline.sparsifiers.t_spanner import TSpannerSparsifier
 from unused.visualization.drawer import GraphDrawer
 from unused.visualization.summary import summarize_results
-from metrics.collector import MetricsCollector
+from src.graph_pipeline.metrics.collector import MetricsCollector
 
 
 def main():
