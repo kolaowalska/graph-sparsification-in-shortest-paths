@@ -20,7 +20,7 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
     discovered_keys: Set[str] = set()
 
     logger.info("starting first pass: collecting all possible fieldnames...")
-    for file_path in tqdm(samples, desc="collecting fieldnames"):
+    for file_path in tqdm(samples, desc="collecting fieldnames", ncols=120, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{rate_fmt}] {remaining}", dynamic_ncols=True):
         try:
             G = infer_and_parse(file_path, family)
             for method_name, sparsifier_func in sparsifiers_registry.items():
@@ -72,7 +72,7 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
     all_rows_data = []
 
     logger.info("starting second pass: processing graphs and writing results to csv...")
-    for file_path in tqdm(samples, desc="graph processing"):
+    for file_path in tqdm(samples, desc="graph processing", ncols=120, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{rate_fmt}] {remaining}", dynamic_ncols=True):
         try:
             G = infer_and_parse(file_path, family)
 

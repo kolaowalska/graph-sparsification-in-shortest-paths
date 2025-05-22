@@ -4,7 +4,6 @@ import random
 from collections import defaultdict
 import networkx as nx
 # TODO: add user-defined tau
-# TODO: Wrapper
 
 
 class KOLSSparsifier(Sparsifier):

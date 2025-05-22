@@ -3,12 +3,10 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Dict, Any, Tuple, List
 
+# TODO: debug nonexistent original_row
+
 
 def _get_degree_data_from_row(row: pd.Series, cols_prefix: str) -> Tuple[List[int], List[float]]:
-    """
-    extracts degree and frequency values from a pandas Series (row)
-    based on a column prefix, and returns them sorted by degree
-    """
     if cols_prefix.endswith('_'):  # for general or directed specific like 'original_in_'
         relevant_cols = [col for col in row.index if col.startswith(cols_prefix) and pd.notna(row[col])]
     else:  # for original_ or sparsified_
@@ -182,3 +180,66 @@ def plot_degree_distributions(df: pd.DataFrame, plots_dir: Path):
             print(f"plot saved: {plot_filename}")
             plt.show()
             plt.close()
+
+
+"""
+else:
+    plt.figure(figsize=(12, 7))
+
+    if 'original' in graph_df['method'].values:
+        original_row = graph_df[graph_df['method'] == 'original'].iloc[0]
+        skip_method = 'original'
+    else:
+        original_row = None
+        skip_method = None
+
+    for method in graph_df['method'].unique():
+        if method == skip_method:
+            continue
+        method_row = graph_df[graph_df['method'] == method].iloc[0]
+
+        spars_deg_vals, spars_freq_vals = _get_degree_data_from_row(
+            method_row,
+            'degree_distribution_sparsified_'
+        )
+
+        if spars_deg_vals:
+            plt.plot(
+                spars_deg_vals,
+                spars_freq_vals,
+                marker='o',
+                linestyle='--',
+                label=f'sparsified ({method})'
+            )
+
+    # only plot original if found
+    if original_row is not None:
+        orig_deg_vals, orig_freq_vals = _get_degree_data_from_row(
+            original_row,
+            'degree_distribution_original_'
+        )
+
+        if orig_deg_vals:
+            plt.plot(
+                orig_deg_vals,
+                orig_freq_vals,
+                marker='o',
+                linestyle='-',
+                label='original',
+                color='black',
+                linewidth=2
+            )
+
+    plt.title(f'degree distribution for undirected graph: {graph_name}', fontsize=16)
+    plt.xlabel('degree', fontsize=12)
+    plt.ylabel('frequency', fontsize=12)
+    plt.legend(fontsize=10)
+    plt.grid(True, linestyle='-', alpha=0.7)
+    plt.tight_layout()
+    plot_filename = plots_dir / f'degree_distribution_undirected_{graph_name}.png'
+    plt.savefig(plot_filename)
+    print(f"plot saved: {plot_filename}")
+    plt.show()
+    plt.close()
+
+"""
