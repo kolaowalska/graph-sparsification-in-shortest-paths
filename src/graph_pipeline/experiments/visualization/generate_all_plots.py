@@ -33,7 +33,7 @@ def generate_plots(results_path: Path = RESULTS_FILE, plots_dir: Path = PLOTS_DI
 
     ensure_plots_dir(plots_dir)
     print(f"loaded {len(df)} rows from {results_path}")
-    print("available columns:", df.columns.tolist())
+    # print("available columns:", df.columns.tolist())
 
     plot_edge_ratio(df, plots_dir)
     plot_sparsification_time(df, plots_dir)

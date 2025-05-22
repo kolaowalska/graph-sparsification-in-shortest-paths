@@ -19,6 +19,7 @@ if __name__ == "__main__":
     results_dir.mkdir(parents=True, exist_ok=True)
 
     for family in families:
+        print("\n")
         data_dir = processed_dir / family
         if not data_dir.exists():
             tqdm.write(f"skipping missing family folder: {family}")
