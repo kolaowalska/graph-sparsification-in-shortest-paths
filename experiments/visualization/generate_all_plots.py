@@ -6,7 +6,7 @@ from experiments.visualization.plots.plot_sparsification_time import plot_sparsi
 from experiments.visualization.plots.plot_stretch_vs_edge_ratio import plot_stretch_vs_edges_ratio
 from experiments.visualization.plots.plot_degree_distributions import plot_degree_distributions
 
-RESULTS_FILE = Path("../results/results.csv")
+RESULTS_FILE = Path("../../src/graph_pipeline/results/results.csv")
 PLOTS_DIR = Path("./plots/images")
 
 

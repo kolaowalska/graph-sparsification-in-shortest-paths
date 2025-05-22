@@ -8,8 +8,8 @@ from src.graph_pipeline.sparsifiers import sparsifiers_registry
 from src.graph_pipeline.flatten_metrics import compute_metrics
 from src.graph_pipeline.utils import logger, timer
 
-DATA_DIR = Path("../data/raw")
-OUT_FILE = Path("results/results.csv")
+DATA_DIR = Path("../src/graph_pipeline/data/raw")
+OUT_FILE = Path("../src/graph_pipeline/results/results.csv")
 
 
 def main(rho=0.2):
