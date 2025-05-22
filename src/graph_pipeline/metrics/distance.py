@@ -15,7 +15,7 @@ def apsp_matrix(
     returns dist[u][v] = float distance of math.inf if unreachable
     """
     G = getattr(G_input, 'G', getattr(G_input, '_G', G_input))
-
+    # print(list(G.nodes()))
     if weight is None:
         raw = dict(nx.all_pairs_shortest_path_length(G))
     else:

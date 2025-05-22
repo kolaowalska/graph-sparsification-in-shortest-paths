@@ -2,6 +2,7 @@ from pathlib import Path
 from tqdm import tqdm
 from src.graph_pipeline.utils.preprocessing import process_unprocessed
 from src.graph_pipeline.experiments import run_experiments as rexp
+from src.graph_pipeline.experiments.visualization import generate_all_plots as plot
 
 if __name__ == "__main__":
     input_unprocessed = Path("./data/unprocessed")
@@ -31,3 +32,6 @@ if __name__ == "__main__":
         setattr(rexp, 'family', family)
 
         rexp.main(rho=rho, data_dir=data_dir, out_file=out_file, family=family)
+        plot.generate_plots(out_file, results_dir / f"{family}_plots")
+
+
