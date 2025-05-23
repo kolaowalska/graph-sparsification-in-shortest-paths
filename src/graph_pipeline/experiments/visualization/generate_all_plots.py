@@ -3,10 +3,12 @@ from pathlib import Path
 
 from src.graph_pipeline.experiments.visualization.plots.plot_edge_ratio import plot_edge_ratio
 from src.graph_pipeline.experiments.visualization.plots.plot_sparsification_time import plot_sparsification_time
-from src.graph_pipeline.experiments.visualization.plots.plot_stretch_vs_edge_ratio import plot_stretch_vs_edges_ratio
+from src.graph_pipeline.experiments.visualization.plots.plot_avg_stretch_vs_edge_ratio import plot_stretch_vs_edges_ratio
 from src.graph_pipeline.experiments.visualization.plots.plot_degree_distributions import plot_degree_distributions
+from src.graph_pipeline.experiments.visualization.plots.plot_avg_stretch_per_sparsifier import plot_avg_stretch_vs_sparsifier
 
 RESULTS_FILE = Path("../../results")
+# RESULTS_FILE = Path("../../results/directed_results.csv")
 PLOTS_DIR = Path("plots/images")
 
 
@@ -42,6 +44,7 @@ def generate_plots(results_path: Path = RESULTS_FILE, plots_dir: Path = PLOTS_DI
     plot_sparsification_time(df, plots_dir)
     plot_stretch_vs_edges_ratio(df, plots_dir)
     plot_degree_distributions(df, plots_dir)
+    plot_avg_stretch_vs_sparsifier(df, plots_dir)
 
     print(f"\nall plots attempted. check the '{plots_dir}' directory")
 

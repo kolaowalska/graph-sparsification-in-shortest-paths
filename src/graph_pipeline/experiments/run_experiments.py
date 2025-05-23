@@ -23,10 +23,15 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
     for file_path in tqdm(samples, desc="collecting fieldnames", ncols=120, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{rate_fmt}] {remaining}", dynamic_ncols=True):
         try:
             G = infer_and_parse(file_path, family)
+
+            metrics = compute_metrics(G, G, "original")
+            discovered_keys.update(metrics.keys())
+
             for method_name, sparsifier_func in sparsifiers_registry.items():
                 H, _ = timer(sparsifier_func)(G, rho)
                 metrics = compute_metrics(G, H, method_name)
                 discovered_keys.update(metrics.keys())
+
         except Exception as e:
             logger.exception(f"error collecting fieldnames from {file_path.name}: {e}")
 
@@ -55,8 +60,9 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
 
     fieldnames = base_fieldnames + base_metrics + degree_distribution_keys + ["sparsify_time"]
 
-    expected_fields = set(
-        base_fieldnames + base_metrics + degree_distribution_keys + ["sparsify_time"])
+    # expected_fields = set(base_fieldnames + base_metrics + degree_distribution_keys + ["sparsify_time"])
+
+    expected_fields = set(fieldnames)
 
     if not discovered_keys.issubset(expected_fields):
         missing_from_order = discovered_keys - expected_fields
@@ -69,19 +75,36 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
     logger.info(f"collected {len(fieldnames)} unique fieldnames for csv header")
     # logger.debug(f"final fieldnames: {fieldnames}")
 
-    all_rows_data = []
+    original_rows_data = []
+    sparsified_rows_data = []
 
     logger.info("starting second pass: processing graphs and writing results to csv...")
     for file_path in tqdm(samples, desc="graph processing", ncols=120, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{rate_fmt}] {remaining}", dynamic_ncols=True):
         try:
             G = infer_and_parse(file_path, family)
 
+            metrics = compute_metrics(G, G, "original")
+            row = {
+                "graph": file_path.name,
+                "graph_family": G.graph_family,
+                "method": "original",
+                "rho": rho,
+                "n": G.n,
+                "m_og": G.m,
+                "m_sparse": None,
+                **metrics,
+                "sparsify_time": None
+            }
+            for field in fieldnames:
+                if field not in row:
+                    row[field] = None
+            original_rows_data.append(row)
+
             for method_name, sparsifier_fn in sparsifiers_registry.items():
                 timed_fn = timer(sparsifier_fn)
                 H, elapsed = timed_fn(G, rho)
 
                 metrics = compute_metrics(G, H, method_name)
-
                 row = {
                     "graph": file_path.name,
                     "graph_family": G.graph_family,
@@ -95,19 +118,18 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
                 }
                 for field in fieldnames:
                     if field not in row:
-                        row[field] = None  # 0.0
-
-                all_rows_data.append(row)
+                        row[field] = None
+                sparsified_rows_data.append(row)
 
         except Exception as e:
             logger.exception(f"error processing {file_path.name}: {e}")
 
-    with out_file.open("w", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
-        writer.writeheader()
-        writer.writerows(all_rows_data)
+        with out_file.open("w", newline="") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
+            writer.writeheader()
+            writer.writerows(original_rows_data + sparsified_rows_data)
 
-    logger.info(f"results successfully written to {out_file}")
+        logger.info(f"results successfully written to {out_file}")
 
 
 if __name__ == "__main__":

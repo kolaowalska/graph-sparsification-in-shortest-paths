@@ -4,11 +4,11 @@ import random
 
 
 class RandomSparsifier(Sparsifier):
-    def __init__(self, p: float = 0.5, seed: int = None):
-        self._p = p
+    def __init__(self, rho: float = 0.5, seed: int = None):
+        self._rho = rho
         self._seed = seed
 
-    def name(self): return f"random (p = {self._p})"
+    def name(self): return f"random (p = {self._rho})"
 
     def sparsify(self, graph: GraphWrapper, rho: float = None) -> GraphWrapper:
         assert 0 <= rho <= 1
@@ -18,7 +18,7 @@ class RandomSparsifier(Sparsifier):
         if self._seed is not None:
             random.seed(self._seed)
 
-        p = 1 - rho if rho is not None else self._p
+        p = 1 - rho if rho is not None else self._rho
 
         for u, v, data in G.edges(data=True):
             if random.random() < p:

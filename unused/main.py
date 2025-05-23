@@ -20,11 +20,11 @@ def main():
     seed = 31
     strategies = [
         KOLSSparsifier(k=3, rho=0.85, seed=seed),
-        RandomSparsifier(p=0.7, seed=seed),
+        RandomSparsifier(rho=0.7, seed=seed),
         KNeighborSparsifier(k=3, seed=seed),
         LocalDegreeSparsifier(alpha=0.9),
         MSTSparsifier(),
-        RandomSparsifier(p=0.75, seed=seed),
+        RandomSparsifier(rho=0.75, seed=seed),
         TSpannerSparsifier(t=2.0),
     ]
 

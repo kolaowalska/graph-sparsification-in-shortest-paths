@@ -7,9 +7,9 @@ from typing import Dict, Any, Tuple, List
 
 
 def _get_degree_data_from_row(row: pd.Series, cols_prefix: str) -> Tuple[List[int], List[float]]:
-    if cols_prefix.endswith('_'):  # for general or directed specific like 'original_in_'
+    if cols_prefix.endswith('_'):
         relevant_cols = [col for col in row.index if col.startswith(cols_prefix) and pd.notna(row[col])]
-    else:  # for original_ or sparsified_
+    else:
         relevant_cols = [col for col in row.index if col.startswith(cols_prefix)
                          and not col.startswith(f'{cols_prefix}in_')
                          and not col.startswith(f'{cols_prefix}out_')
@@ -36,92 +36,77 @@ def plot_degree_distributions(df: pd.DataFrame, plots_dir: Path):
 
     for graph_name in unique_graphs:
         graph_df = df[df['graph'] == graph_name].copy()
-
         graph_family = graph_df['graph_family'].iloc[0]
         is_directed = (graph_family == 'directed')
 
-        if is_directed:  # separate subplots
+        if is_directed:
             fig, axes = plt.subplots(1, 2, figsize=(18, 8), sharey=True)
-            fig.suptitle(f'degree distribution for directed draph: {graph_name}', fontsize=18)
+            fig.suptitle(f'degree distribution for directed graph: {graph_name}', fontsize=18)
 
-            original_in_row = graph_df[graph_df['method'] == graph_df['method'].iloc[0]].iloc[0]
-            orig_in_deg_vals, orig_in_freq_vals = _get_degree_data_from_row(
-                original_in_row,
-                'degree_distribution_original_in_'
-            )
+            # Plot original in-degree
+            if 'original' in graph_df['method'].values:
+                original_row = graph_df[graph_df['method'] == 'original'].iloc[0]
 
-            if orig_in_deg_vals:
-                axes[0].plot(
-                    orig_in_deg_vals,
-                    orig_in_freq_vals,
-                    marker='o',
-                    linestyle='-',
-                    label='original in-degree',
-                    color='black',
-                    linewidth=2
-                )
+                orig_in_deg_vals, orig_in_freq_vals = _get_degree_data_from_row(
+                    original_row, 'degree_distribution_original_in_')
+                if orig_in_deg_vals:
+                    axes[0].plot(
+                        orig_in_deg_vals,
+                        orig_in_freq_vals,
+                        marker='o',
+                        linestyle='-',
+                        label='original in-degree',
+                        color='black',
+                        linewidth=2
+                    )
 
-            orig_out_deg_vals, orig_out_freq_vals = _get_degree_data_from_row(
-                original_in_row,
-                'degree_distribution_original_out_'
-            )
+                orig_out_deg_vals, orig_out_freq_vals = _get_degree_data_from_row(
+                    original_row, 'degree_distribution_original_out_')
+                if orig_out_deg_vals:
+                    axes[1].plot(
+                        orig_out_deg_vals,
+                        orig_out_freq_vals,
+                        marker='o',
+                        linestyle='-',
+                        label='original out-degree',
+                        color='black',
+                        linewidth=2
+                    )
 
-            if orig_out_deg_vals:
-                axes[1].plot(
-                    orig_out_deg_vals,
-                    orig_out_freq_vals,
-                    marker='o',
-                    linestyle='-',
-                    label='original out-degree',
-                    color='black',
-                    linewidth=2
-                )
-
-            # plotting sparsified indegree and outdegree for each sparsifier
             for method in graph_df['method'].unique():
-                # skip if it's the same row used for original (shouldn't happen)
-                # a more robust way to identify the 'original' row if 'method' isn't unique for it?????
-                if method == original_in_row['method']:
+                if method == 'original':
                     continue
                 method_row = graph_df[graph_df['method'] == method].iloc[0]
 
                 spars_in_deg_vals, spars_in_freq_vals = _get_degree_data_from_row(
-                    method_row,
-                    'degree_distribution_sparsified_in_'
-                )
-
+                    method_row, 'degree_distribution_sparsified_in_')
                 if spars_in_deg_vals:
                     axes[0].plot(
                         spars_in_deg_vals,
                         spars_in_freq_vals,
                         marker='x',
                         linestyle='--',
-                        label=f'sparsified in-degree ({method})')
+                        label=f'sparsified in-degree ({method})'
+                    )
 
                 spars_out_deg_vals, spars_out_freq_vals = _get_degree_data_from_row(
-                    method_row,
-                    'degree_distribution_sparsified_out_'
-                )
-
+                    method_row, 'degree_distribution_sparsified_out_')
                 if spars_out_deg_vals:
                     axes[1].plot(
                         spars_out_deg_vals,
                         spars_out_freq_vals,
                         marker='x',
                         linestyle='--',
-                        label=f'sparsified out-degree ({method})')
+                        label=f'sparsified out-degree ({method})'
+                    )
 
-            axes[0].set_title('in-degree distribution', fontsize=14)
-            axes[0].set_xlabel('degree', fontsize=12)
+            for ax, title in zip(axes, ['in-degree distribution', 'out-degree distribution']):
+                ax.set_title(title, fontsize=14)
+                ax.set_xlabel('degree', fontsize=12)
+                ax.legend(fontsize=10)
+                ax.grid(True, linestyle='--', alpha=0.7)
+
             axes[0].set_ylabel('frequency', fontsize=12)
-            axes[0].legend(fontsize=10)
-            axes[0].grid(True, linestyle='--', alpha=0.7)
-
-            axes[1].set_title('out-degree distribution', fontsize=14)
-            axes[1].set_xlabel('degree', fontsize=12)
-            axes[1].legend(fontsize=10)
-            axes[1].grid(True, linestyle='--', alpha=0.7)
-
             plt.tight_layout(rect=[0, 0.03, 1, 0.95])
             plot_filename = plots_dir / f'degree_distribution_directed_{graph_name}.png'
             plt.savefig(plot_filename)
@@ -129,21 +114,30 @@ def plot_degree_distributions(df: pd.DataFrame, plots_dir: Path):
             plt.show()
             plt.close(fig)
 
-        else:
+        else:  # undirected
             plt.figure(figsize=(12, 7))
 
-            original_row = graph_df[graph_df['method'] == graph_df['method'].iloc[0]].iloc[0]
+            if 'original' in graph_df['method'].values:
+                original_row = graph_df[graph_df['method'] == 'original'].iloc[0]
+                orig_deg_vals, orig_freq_vals = _get_degree_data_from_row(
+                    original_row, 'degree_distribution_original_')
+                if orig_deg_vals:
+                    plt.plot(
+                        orig_deg_vals,
+                        orig_freq_vals,
+                        marker='o',
+                        linestyle='-',
+                        label='original',
+                        color='black',
+                        linewidth=2
+                    )
 
             for method in graph_df['method'].unique():
-                if method == original_row['method']:
+                if method == 'original':
                     continue
                 method_row = graph_df[graph_df['method'] == method].iloc[0]
-
                 spars_deg_vals, spars_freq_vals = _get_degree_data_from_row(
-                    method_row,
-                    'degree_distribution_sparsified_'
-                )
-
+                    method_row, 'degree_distribution_sparsified_')
                 if spars_deg_vals:
                     plt.plot(
                         spars_deg_vals,
@@ -152,22 +146,6 @@ def plot_degree_distributions(df: pd.DataFrame, plots_dir: Path):
                         linestyle='--',
                         label=f'sparsified ({method})'
                     )
-
-            orig_deg_vals, orig_freq_vals = _get_degree_data_from_row(
-                original_row,
-                'degree_distribution_original_'
-            )
-
-            if orig_deg_vals:
-                plt.plot(
-                    orig_deg_vals,
-                    orig_freq_vals,
-                    marker='o',
-                    linestyle='-',
-                    label='original',
-                    color='black',
-                    linewidth=2
-                )
 
             plt.title(f'degree distribution for undirected graph: {graph_name}', fontsize=16)
             plt.xlabel('degree', fontsize=12)
@@ -180,7 +158,6 @@ def plot_degree_distributions(df: pd.DataFrame, plots_dir: Path):
             print(f"plot saved: {plot_filename}")
             plt.show()
             plt.close()
-
 
 """
 else:
