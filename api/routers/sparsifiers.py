@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from src.graph_pipeline.utils.parsers import infer_and_parse
-from src.graph_pipeline.sparsifiers import sparsifiers_registry
-from src.graph_pipeline.utils.flatten_metrics import compute_metrics
+from utils.parsers import infer_and_parse
+from sparsifiers import sparsifiers_registry
+from utils.flatten_metrics import compute_metrics
 from pathlib import Path
 
 router = APIRouter(prefix="/sparsifiers", tags=["sparsifiers"])

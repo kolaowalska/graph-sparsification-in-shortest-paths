@@ -10,6 +10,10 @@ def plot_sparsification_time(df: pd.DataFrame, plots_dir: Path):
         print("skipping 'sparsification time' plot: required columns are missing")
         return
 
+    # to jest na pale
+    families = df['graph_family'].unique()
+    family = ''.join(sorted(families))
+
     plt.figure(figsize=(10, 8))
     sns.barplot(
         data=df,
@@ -19,7 +23,7 @@ def plot_sparsification_time(df: pd.DataFrame, plots_dir: Path):
         palette="mako",
         errorbar=None
     )
-    plt.title('average sparsification time by method', fontsize=16)
+    plt.title(f'average sparsification time by method for {family} graphs', fontsize=16)
     plt.ylabel('time (s)', fontsize=12)
     plt.xlabel('sparsification method', fontsize=12)
     plt.grid(axis='y', linestyle='--', alpha=0.7)

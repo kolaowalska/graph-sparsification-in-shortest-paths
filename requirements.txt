@@ -7,3 +7,7 @@ pydantic
 sqlalchemy
 tqdm
 PyYAML
+networkit
+seaborn
+matplotlib
+joblib

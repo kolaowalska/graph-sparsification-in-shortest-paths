@@ -1,7 +1,7 @@
 import networkx as nx
 from collections import Counter
 from typing import Dict, Any, Union, Optional
-from unused.graphs.utils import symmetrize_graph
+from utils.symmetrizer import symmetrize_graph
 
 
 def degree_distribution(

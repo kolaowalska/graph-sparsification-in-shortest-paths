@@ -1,5 +1,5 @@
 from .base import Sparsifier
-from src.graph_pipeline.utils.core import GraphWrapper
+from utils.core import GraphWrapper
 import random
 from collections import defaultdict
 import networkx as nx

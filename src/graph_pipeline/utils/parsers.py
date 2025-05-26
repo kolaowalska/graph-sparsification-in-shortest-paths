@@ -1,7 +1,7 @@
 import ast
 import networkx as nx
 import numpy as np
-from src.graph_pipeline.utils.core import GraphWrapper
+from utils.core import GraphWrapper
 from pathlib import Path
 
 

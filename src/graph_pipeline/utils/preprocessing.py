@@ -1,6 +1,6 @@
 from pathlib import Path
-from src.graph_pipeline.utils.converter import convert_file
-from src.graph_pipeline.utils.parsers import infer_and_parse
+from utils.converter import convert_file
+from utils.parsers import infer_and_parse
 
 
 def process_unprocessed(input_dir: Path, output_dir: Path) -> None:

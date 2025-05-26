@@ -1,10 +1,10 @@
-from src.graph_pipeline.utils.core import GraphWrapper
-from src.graph_pipeline.metrics.structural import (
+from utils.core import GraphWrapper
+from metrics.structural import (
     degree_distribution,
     is_connected,
     laplacian_quadratic_form
 )
-from src.graph_pipeline.metrics.distance import (
+from metrics.distance import (
     apsp_matrix,
     graph_diameter,
     unreachable_pairs_ratio,

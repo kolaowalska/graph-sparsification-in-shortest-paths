@@ -3,10 +3,10 @@ from pathlib import Path
 from tqdm import tqdm
 from typing import List, Set
 
-from src.graph_pipeline.utils.parsers import infer_and_parse
-from src.graph_pipeline.sparsifiers import sparsifiers_registry
-from src.graph_pipeline.utils.flatten_metrics import compute_metrics
-from src.graph_pipeline.utils.timer import logger, timer
+from utils.parsers import infer_and_parse
+from sparsifiers import sparsifiers_registry
+from utils.flatten_metrics import compute_metrics
+from utils.timer import logger, timer
 
 
 def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family: str = None):

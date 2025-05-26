@@ -10,9 +10,13 @@ def plot_stretch_vs_edges_ratio(df: pd.DataFrame, plots_dir: Path):
         print("skipping 'stretch vs edges ratio' plot: required columns are missing")
         return
 
+    # to jest na pale
+    families = df['graph_family'].unique()
+    family = families[0]
+
     plt.figure(figsize=(14, 8))
     sns.scatterplot(data=df, x='edges_ratio', y='stretch_avg', hue='method', style='graph_family', s=100, alpha=0.7)
-    plt.title('average stretch vs. edges ratio for {graph_family} graphs', fontsize=16)
+    plt.title(f'average stretch vs. edges ratio for {family} graphs', fontsize=16)
     plt.ylabel('average stretch', fontsize=12)
     plt.xlabel('edges ratio (m_sparse / m_og)', fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.7)

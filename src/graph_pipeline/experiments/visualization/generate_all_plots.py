@@ -1,22 +1,22 @@
 import pandas as pd
 from pathlib import Path
 
-from src.graph_pipeline.experiments.visualization.plots.plot_edge_ratio import plot_edge_ratio
-from src.graph_pipeline.experiments.visualization.plots.plot_sparsification_time import plot_sparsification_time
-from src.graph_pipeline.experiments.visualization.plots.plot_avg_stretch_vs_edge_ratio import plot_stretch_vs_edges_ratio
-from src.graph_pipeline.experiments.visualization.plots.plot_degree_distributions import plot_degree_distributions
-from src.graph_pipeline.experiments.visualization.plots.plot_avg_stretch_per_sparsifier import plot_avg_stretch_vs_sparsifier
+from experiments.visualization.plots.plot_edge_ratio import plot_edge_ratio
+from experiments.visualization.plots.plot_sparsification_time import plot_sparsification_time
+from experiments.visualization.plots.plot_avg_stretch_vs_edge_ratio import plot_stretch_vs_edges_ratio
+from experiments.visualization.plots.plot_degree_distributions import plot_degree_distributions
+from experiments.visualization.plots.plot_avg_stretch_per_sparsifier import plot_avg_stretch_vs_sparsifier
 
-RESULTS_FILE = Path("../../results")
+# RESULTS_FILE = Path("../../results")
 # RESULTS_FILE = Path("../../results/directed_results.csv")
-PLOTS_DIR = Path("plots/images")
-
+# PLOTS_DIR = Path("plots/images")
+# PLOTS_DIR = Path("../../results")
 
 def ensure_plots_dir(plots_dir: Path):
     plots_dir.mkdir(parents=True, exist_ok=True)
 
 
-def generate_plots(results_path: Path = RESULTS_FILE, plots_dir: Path = PLOTS_DIR):
+def generate_plots(results_path: Path = None, plots_dir: Path = None):
     if not results_path.exists():
         print(f"error: results file not found at {results_path}")
         print(f"current working directory: {Path.cwd()}")
@@ -38,7 +38,6 @@ def generate_plots(results_path: Path = RESULTS_FILE, plots_dir: Path = PLOTS_DI
 
     ensure_plots_dir(plots_dir)
     print(f"loaded {len(df)} rows from {results_path}")
-    # print("available columns:", df.columns.tolist())
 
     plot_edge_ratio(df, plots_dir)
     plot_sparsification_time(df, plots_dir)

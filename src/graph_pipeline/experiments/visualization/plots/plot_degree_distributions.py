@@ -1,9 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
-from typing import Dict, Any, Tuple, List
-
-# TODO: debug nonexistent original_row
+from typing import Tuple, List
 
 
 def _get_degree_data_from_row(row: pd.Series, cols_prefix: str) -> Tuple[List[int], List[float]]:
@@ -43,7 +41,6 @@ def plot_degree_distributions(df: pd.DataFrame, plots_dir: Path):
             fig, axes = plt.subplots(1, 2, figsize=(18, 8), sharey=True)
             fig.suptitle(f'degree distribution for directed graph: {graph_name}', fontsize=18)
 
-            # Plot original in-degree
             if 'original' in graph_df['method'].values:
                 original_row = graph_df[graph_df['method'] == 'original'].iloc[0]
 

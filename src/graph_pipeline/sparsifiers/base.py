@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.graph_pipeline.utils.core import GraphWrapper
+from utils.core import GraphWrapper
 
 
 class Sparsifier(ABC):

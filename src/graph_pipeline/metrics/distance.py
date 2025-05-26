@@ -1,28 +1,28 @@
 import networkx as nx
+import networkit as nk
 import math
 from typing import Any, Dict, Optional, Union
+from joblib import Parallel, delayed
 
 
+# zrodlo problemu: okazuje sie ze dijkstra i bellman-ford
 def apsp_matrix(
-        G_input: Union[nx.Graph, object],
+        G: Union[nx.Graph, object],
         weight: Optional[str] = 'weight'
 ) -> Dict[Any, Dict[Any, float]]:
-    """
-    computes all-pairs shortest-path distances for a given graph G
-    if weight is None uses unweighted BFS (edge length = 1),
-    otherwise just uses johnson with positive weights falling back to floyd-warshall
+    # return exact_apsp_networkit_parallel(G, weight=weight, n_jobs=-1)
 
-    returns dist[u][v] = float distance of math.inf if unreachable
-    """
-    G = getattr(G_input, 'G', getattr(G_input, '_G', G_input))
-    # print(list(G.nodes()))
+    G = getattr(G, 'G', getattr(G, '_G', G))
+
     if weight is None:
         raw = dict(nx.all_pairs_shortest_path_length(G))
-    else:
+    elif G.is_directed():
         try:
             raw = dict(nx.johnson(G, weight=weight))
         except Exception:
             raw = dict(nx.floyd_warshall(G, weight=weight))
+    else:
+        raw = dict(nx.all_pairs_dijkstra_path_length(G, weight=weight))
 
     nodes = list(G.nodes())
     dist: Dict[Any, Dict[Any, float]] = {u: {v: math.inf for v in nodes} for u in nodes}
@@ -30,14 +30,40 @@ def apsp_matrix(
     for u, row in raw.items():
         dist[u][u] = 0.0
         for v, d in row.items():
-            if isinstance(d, list):
-                value = float(len(d) - 1)
-            else:
-                try:
-                    value = float(d)
-                except Exception:
-                    value = math.inf
-            dist[u][v] = value
+            try:
+                dist[u][v] = float(d)
+            except Exception:
+                dist[u][v] = math.inf
+
+    return dist
+
+
+def exact_apsp_networkit_parallel(G: nx.Graph, weight: str = "weight", n_jobs: int = -1):
+    node_list = list(G.nodes())
+    node_to_id = {n: i for i, n in enumerate(node_list)}
+    id_to_node = {i: n for n, i in node_to_id.items()}
+
+    nkG = nk.graph.Graph(n=len(G.nodes()), weighted=True, directed=G.is_directed())
+    for u, v, data in G.edges(data=True):
+        w = data.get(weight, 1.0)
+        nkG.addEdge(node_to_id[u], node_to_id[v], w)
+
+    def single_source_apsp(i):
+        dij = nk.distance.Dijkstra(nkG, i, storePaths=False)
+        dij.run()
+        return i, dij.getDistances()
+
+    results = Parallel(n_jobs=n_jobs, prefer="threads")(
+        delayed(single_source_apsp)(i) for i in range(nkG.numberOfNodes())
+    )
+
+    dist = {id_to_node[i]: {} for i in range(nkG.numberOfNodes())}
+    for i, dvec in results:
+        u = id_to_node[i]
+        for j, d in enumerate(dvec):
+            v = id_to_node[j]
+            dist[u][v] = float(d)
+
     return dist
 
 

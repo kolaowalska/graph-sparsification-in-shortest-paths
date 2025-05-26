@@ -1,5 +1,5 @@
-from src.graph_pipeline.utils.core import GraphWrapper
-from src.graph_pipeline.metrics.collector import MetricsCollector
+from utils.core import GraphWrapper
+from metrics.collector import MetricsCollector
 from typing import Dict, Union
 
 

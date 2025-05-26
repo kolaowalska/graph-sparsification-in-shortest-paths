@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from src.graph_pipeline.utils.parsers import infer_and_parse
-from src.graph_pipeline.sparsifiers import sparsifiers_registry
-from src.graph_pipeline.utils.flatten_metrics import compute_metrics
+from utils.parsers import infer_and_parse
+from sparsifiers import sparsifiers_registry
+from utils.flatten_metrics import compute_metrics
 from pydantic import BaseModel
 from pathlib import Path
 
