@@ -13,6 +13,10 @@ def parse_edgelist(path: Path, graph_family: str = None) -> GraphWrapper:
         Gnx = Gnx.to_undirected()
 
     family = graph_family or _infer_family(Gnx)
+
+    if family == 'undirected':
+        directed = False
+
     nodes = list(Gnx.nodes())
     edges = [
         (u, v, data.get('weight', 1))
