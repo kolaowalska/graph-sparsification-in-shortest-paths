@@ -5,7 +5,8 @@ from typing import Any, Dict, Optional, Union
 from joblib import Parallel, delayed
 
 
-# zrodlo problemu: okazuje sie ze dijkstra i bellman-ford
+# zrodlo problemu: okazuje sie ze bellman-ford i dijkstra (nawet parallel dijkstra) nie radza
+# sobie z tak duzymi grafami i np O(n·(m + n log n)) robi sie za duze dla n, m > 100k :(
 def apsp_matrix(
         G: Union[nx.Graph, object],
         weight: Optional[str] = 'weight'
