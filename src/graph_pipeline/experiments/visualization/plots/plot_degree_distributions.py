@@ -108,7 +108,8 @@ def plot_degree_distributions(df: pd.DataFrame, plots_dir: Path):
             plot_filename = plots_dir / f'degree_distribution_directed_{graph_name}.png'
             plt.savefig(plot_filename)
             print(f"plot saved: {plot_filename}")
-            plt.show()
+
+            # plt.show()
             plt.close(fig)
 
         else:  # undirected
@@ -153,7 +154,8 @@ def plot_degree_distributions(df: pd.DataFrame, plots_dir: Path):
             plot_filename = plots_dir / f'degree_distribution_undirected_{graph_name}.png'
             plt.savefig(plot_filename)
             print(f"plot saved: {plot_filename}")
-            plt.show()
+
+            # plt.show()
             plt.close()
 
 """

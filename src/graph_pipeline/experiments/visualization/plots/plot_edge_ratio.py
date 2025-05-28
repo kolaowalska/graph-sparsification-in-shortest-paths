@@ -26,5 +26,6 @@ def plot_edge_ratio(df: pd.DataFrame, plots_dir: Path):
         plot_filename = plots_dir / f'edges_ratio_{family}.png'
         plt.savefig(plot_filename)
         print(f"plot saved: {plot_filename}")
-        plt.show()
+
+        # plt.show()
         plt.close()

@@ -1,19 +1,22 @@
 import networkx as nx
 import networkit as nk
 import math
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, Tuple
 from joblib import Parallel, delayed
 
 
-# zrodlo problemu: okazuje sie ze bellman-ford i dijkstra (nawet parallel dijkstra) nie radza
-# sobie z tak duzymi grafami i np O(n·(m + n log n)) robi sie za duze dla n, m > 100k :(
+# zrodlo problemu: okazuje sie ze bellman-ford i dijkstra (nawet parallel dijkstra) nie radza sobie z tak
+# duzymi grafami i np O(n·(m + n log n)) robi sie za duze dla mojego 8-rdzeniowego komputerka przy n, m > 100k
 def apsp_matrix(
         G: Union[nx.Graph, object],
         weight: Optional[str] = 'weight'
 ) -> Dict[Any, Dict[Any, float]]:
-    # return exact_apsp_networkit_parallel(G, weight=weight, n_jobs=-1)
 
     G = getattr(G, 'G', getattr(G, '_G', G))
+    nodes = list(G.nodes())
+
+    if G.number_of_edges() > 10000:
+        return exact_apsp_networkit_parallel(G, weight=weight, n_jobs=-1)
 
     if weight is None:
         raw = dict(nx.all_pairs_shortest_path_length(G))
@@ -25,16 +28,15 @@ def apsp_matrix(
     else:
         raw = dict(nx.all_pairs_dijkstra_path_length(G, weight=weight))
 
-    nodes = list(G.nodes())
-    dist: Dict[Any, Dict[Any, float]] = {u: {v: math.inf for v in nodes} for u in nodes}
-
-    for u, row in raw.items():
+    dist = {u: {v: math.inf for v in nodes} for u in nodes}
+    for u in nodes:
         dist[u][u] = 0.0
-        for v, d in row.items():
-            try:
-                dist[u][v] = float(d)
-            except Exception:
-                dist[u][v] = math.inf
+        if u in raw:
+            for v in raw[u]:
+                try:
+                    dist[u][v] = float(raw[u][v])
+                except Exception:
+                    pass
 
     return dist
 
@@ -68,6 +70,8 @@ def exact_apsp_networkit_parallel(G: nx.Graph, weight: str = "weight", n_jobs: i
     return dist
 
 
+# tu w ogole cos sie bombi
+
 def graph_diameter(
         dist: Dict[Any, Dict[Any, float]]
 ) -> float:
@@ -94,13 +98,18 @@ def unreachable_pairs_ratio(
 def local_stretch(
         G_dist: Dict[Any, Dict[Any, float]],
         H_dist: Dict[Any, Dict[Any, float]]
-) -> Dict[Any, float]:
-    stretch: Dict[Any, float] = {}
+) -> Dict[Tuple[Any, Any], float]:
+    stretch: Dict[Tuple[Any, Any], float] = {}
     for u, row in G_dist.items():
         for v, dG in row.items():
-            if u != v and dG > 0 and not math.isinf(dG):
-                dH = H_dist.get(u, {}).get(v, math.inf)
-                stretch[(u, v)] = dH / dG
+            if u == v or dG <= 0 or math.isinf(dG):
+                continue
+            try:
+                dH = H_dist[u][v]
+                if not math.isinf(dH):
+                    stretch[(u, v)] = dH / dG
+            except KeyError:
+                continue
     return stretch
 
 
@@ -120,3 +129,50 @@ def stretch_var(stretch: Dict[Any, float]) -> float:
 def max_stretch(stretch: Dict[Any, float]) -> float:
     values = [s for s in stretch.values() if not math.isinf(s)]
     return max(values) if values else math.inf
+
+
+'''
+def apsp_matrix(
+        G: Union[nx.Graph, object],
+        weight: Optional[str] = 'weight'
+) -> Dict[Any, Dict[Any, float]]:
+    # return exact_apsp_networkit_parallel(G, weight=weight, n_jobs=-1)
+
+    G = getattr(G, 'G', getattr(G, '_G', G))
+
+    if weight is None:
+        raw = dict(nx.all_pairs_shortest_path_length(G))
+    elif G.is_directed():
+        try:
+            raw = dict(nx.johnson(G, weight=weight))
+        except Exception:
+            raw = dict(nx.floyd_warshall(G, weight=weight))
+    else:
+        raw = dict(nx.all_pairs_dijkstra_path_length(G, weight=weight))
+
+    nodes = list(G.nodes())
+    dist: Dict[Any, Dict[Any, float]] = {u: {v: math.inf for v in nodes} for u in nodes}
+
+    for u, row in raw.items():
+        dist[u][u] = 0.0
+        for v, d in row.items():
+            try:
+                dist[u][v] = float(d)
+            except Exception:
+                dist[u][v] = math.inf
+
+    return dist
+    
+    
+    def local_stretch(
+        G_dist: Dict[Any, Dict[Any, float]],
+        H_dist: Dict[Any, Dict[Any, float]]
+) -> Dict[Any, float]:
+    stretch: Dict[Any, float] = {}
+    for u, row in G_dist.items():
+        for v, dG in row.items():
+            if u != v and dG > 0 and not math.isinf(dG):
+                dH = H_dist.get(u, {}).get(v, math.inf)
+                stretch[(u, v)] = dH / dG
+    return stretch
+'''

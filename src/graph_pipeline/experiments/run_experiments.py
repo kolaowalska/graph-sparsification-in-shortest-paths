@@ -11,34 +11,15 @@ from utils.timer import logger, timer
 
 def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family: str = None):
     out_file.parent.mkdir(parents=True, exist_ok=True)
-    samples = list(data_dir.glob("*"))
 
+    samples = list(data_dir.glob("*"))
     if not samples:
         logger.warning(f"no graphs found in directory {data_dir} :(")
         return
 
-    discovered_keys: Set[str] = set()
-
-    logger.info("starting first pass: collecting all possible fieldnames...")
-    for file_path in tqdm(samples, desc="collecting fieldnames", ncols=120, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{rate_fmt}] {remaining}", dynamic_ncols=True):
-        try:
-            G = infer_and_parse(file_path, family)
-
-            metrics = compute_metrics(G, G, "original")
-            discovered_keys.update(metrics.keys())
-
-            for method_name, sparsifier_func in sparsifiers_registry.items():
-                H, _ = timer(sparsifier_func)(G, rho)
-                metrics = compute_metrics(G, H, method_name)
-                discovered_keys.update(metrics.keys())
-
-        except Exception as e:
-            logger.exception(f"error collecting fieldnames from {file_path.name}: {e}")
-
     base_fieldnames: List[str] = [
         "graph", "graph_family", "method", "rho", "n", "m_og", "m_sparse"
     ]
-
     base_metrics: List[str] = [
         'edges_ratio',
         'connected_original',
@@ -53,37 +34,22 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
         'laplacian_qf_sparsified',
     ]
 
-    degree_distribution_keys = sorted([
-        key for key in discovered_keys
-        if key.startswith('degree_distribution_')
-    ])
+    discovered_keys: Set[str] = set()
+    rows_data: List[dict] = []
 
-    fieldnames = base_fieldnames + base_metrics + degree_distribution_keys + ["sparsify_time"]
-
-    # expected_fields = set(base_fieldnames + base_metrics + degree_distribution_keys + ["sparsify_time"])
-
-    expected_fields = set(fieldnames)
-
-    if not discovered_keys.issubset(expected_fields):
-        missing_from_order = discovered_keys - expected_fields
-        logger.warning(
-            f"warning: the following metric keys were discovered "
-            f"but not explicitly ordered: {missing_from_order}, "
-            f"and they will not appear in the csv.")
-        # fieldnames.extend(sorted(list(missing_from_order)))
-
-    logger.info(f"collected {len(fieldnames)} unique fieldnames for csv header")
-    # logger.debug(f"final fieldnames: {fieldnames}")
-
-    original_rows_data = []
-    sparsified_rows_data = []
-
-    logger.info("starting second pass: processing graphs and writing results to csv...")
-    for file_path in tqdm(samples, desc="graph processing", ncols=120, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{rate_fmt}] {remaining}", dynamic_ncols=True):
+    logger.info("starting metrics computation pass...")
+    for file_path in tqdm(
+            samples,
+            desc="processing graphs",
+            ncols=120,
+            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{rate_fmt}] {remaining}",
+            dynamic_ncols=True
+    ):
         try:
             G = infer_and_parse(file_path, family)
 
-            metrics = compute_metrics(G, G, "original")
+            orig_metrics = compute_metrics(G, G, "original")
+            discovered_keys.update(orig_metrics.keys())
             row = {
                 "graph": file_path.name,
                 "graph_family": G.graph_family,
@@ -92,19 +58,16 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
                 "n": G.n,
                 "m_og": G.m,
                 "m_sparse": None,
-                **metrics,
+                **orig_metrics,
                 "sparsify_time": None
             }
-            for field in fieldnames:
-                if field not in row:
-                    row[field] = None
-            original_rows_data.append(row)
+            rows_data.append(row)
 
             for method_name, sparsifier_fn in sparsifiers_registry.items():
                 timed_fn = timer(sparsifier_fn)
                 H, elapsed = timed_fn(G, rho)
-
-                metrics = compute_metrics(G, H, method_name)
+                met = compute_metrics(G, H, method_name)
+                discovered_keys.update(met.keys())
                 row = {
                     "graph": file_path.name,
                     "graph_family": G.graph_family,
@@ -113,23 +76,37 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
                     "n": G.n,
                     "m_og": G.m,
                     "m_sparse": H.m,
-                    **metrics,
+                    **met,
                     "sparsify_time": elapsed
                 }
-                for field in fieldnames:
-                    if field not in row:
-                        row[field] = None
-                sparsified_rows_data.append(row)
+                rows_data.append(row)
 
         except Exception as e:
             logger.exception(f"error processing {file_path.name}: {e}")
 
-        with out_file.open("w", newline="") as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
-            writer.writeheader()
-            writer.writerows(original_rows_data + sparsified_rows_data)
+    degree_distribution_keys = sorted([
+        key for key in discovered_keys
+        if key.startswith('degree_distribution_')
+    ])
+    fieldnames = base_fieldnames + base_metrics + degree_distribution_keys + ["sparsify_time"]
+    expected_fields = set(fieldnames)
 
-        logger.info(f"results successfully written to {out_file}")
+    if not discovered_keys.issubset(expected_fields):
+        missing = discovered_keys - expected_fields
+        logger.warning(
+            f"warning: the following metric keys were discovered but not ordered: {missing}, "
+            f"they'll be omitted from the csv file"
+        )
+
+    with out_file.open("w", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
+        writer.writeheader()
+        for row in rows_data:
+            for key in fieldnames:
+                row.setdefault(key, None)
+            writer.writerow(row)
+
+    logger.info(f"results successfully written to {out_file}")
 
 
 if __name__ == "__main__":

@@ -32,5 +32,6 @@ def plot_sparsification_time(df: pd.DataFrame, plots_dir: Path):
     plot_filename = plots_dir / 'sparsify_time_by_method_family.png'
     plt.savefig(plot_filename)
     print(f"plot saved: {plot_filename}")
-    plt.show()
+
+    # plt.show()
     plt.close()

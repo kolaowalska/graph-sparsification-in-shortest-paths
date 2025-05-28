@@ -22,7 +22,7 @@ if __name__ == "__main__":
         print("\n")
         data_dir = processed_dir / family
         if not data_dir.exists():
-            tqdm.write(f"skipping missing family folder: {family}")
+            tqdm.write(f"skipping missing family: {family}")
             continue
 
         out_file = results_dir / f"{family}_results.csv"
@@ -32,7 +32,7 @@ if __name__ == "__main__":
         setattr(rexp, 'out_file', out_file)
         setattr(rexp, 'family', family)
 
-        # rexp.main(rho=rho, data_dir=data_dir, out_file=out_file, family=family)
+        rexp.main(rho=rho, data_dir=data_dir, out_file=out_file, family=family)
         plot.generate_plots(out_file, results_dir / f"{family}_plots")
 
 

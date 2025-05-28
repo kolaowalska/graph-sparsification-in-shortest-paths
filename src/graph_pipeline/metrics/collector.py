@@ -44,10 +44,10 @@ class MetricsCollector:
             'diameter_original': graph_diameter(G_dist),
             'diameter_sparsified': graph_diameter(H_dist),
             'unreachable_pairs_ratio': unreachable_pairs_ratio(H_dist, G.number_of_nodes()),
-            # 'stretch': stretch, to jeszcze musze jakos uporzadkowac
-            'stretch_avg': stretch_avg(local_stretch(G_dist, H_dist)),
-            'stretch_var': stretch_var(local_stretch(G_dist, H_dist)),
-            'stretch_max': max_stretch(local_stretch(G_dist, H_dist)),
+            'stretch': stretch,  # to jeszcze musze jakos uporzadkowac
+            'stretch_avg': stretch_avg(stretch),
+            'stretch_var': stretch_var(stretch),
+            'stretch_max': max_stretch(stretch),
             'degree_distribution_original': G_distribution,
             'degree_distribution_sparsified': H_distribution,
             'laplacian_qf_original': qf_G,

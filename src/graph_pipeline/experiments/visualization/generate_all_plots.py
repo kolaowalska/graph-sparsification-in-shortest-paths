@@ -12,6 +12,7 @@ from experiments.visualization.plots.plot_avg_stretch_per_sparsifier import plot
 # PLOTS_DIR = Path("plots/images")
 # PLOTS_DIR = Path("../../results")
 
+
 def ensure_plots_dir(plots_dir: Path):
     plots_dir.mkdir(parents=True, exist_ok=True)
 
@@ -37,7 +38,7 @@ def generate_plots(results_path: Path = None, plots_dir: Path = None):
         return
 
     ensure_plots_dir(plots_dir)
-    print(f"loaded {len(df)} rows from {results_path}")
+    print(f"\nloaded {len(df)} rows from {results_path}")
 
     plot_edge_ratio(df, plots_dir)
     plot_sparsification_time(df, plots_dir)

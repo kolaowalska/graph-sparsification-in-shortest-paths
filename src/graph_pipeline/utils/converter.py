@@ -21,15 +21,13 @@ def convert_edgelist(input_path: Path, output_path: Path) -> None:
             try:
                 weight = float(raw_weight)
             except ValueError:
-                # If it fails (e.g., "3 2"), try evaluating it as a literal
                 try:
                     weight_data = ast.literal_eval(raw_weight)
                     if isinstance(weight_data, dict) and "weight" in weight_data:
                         weight = weight_data["weight"]
                     else:
-                        weight = float(weight_data)  # In case it's another numeric structure
+                        weight = float(weight_data)
                 except (ValueError, SyntaxError):
-                    # If it's still invalid, default to 1.0
                     weight = 1.0
 
             outfile.write(f"{u}\t{v}\t{weight}\n")
