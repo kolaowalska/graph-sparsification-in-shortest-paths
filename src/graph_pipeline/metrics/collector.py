@@ -44,7 +44,7 @@ class MetricsCollector:
             'diameter_original': graph_diameter(G_dist),
             'diameter_sparsified': graph_diameter(H_dist),
             'unreachable_pairs_ratio': unreachable_pairs_ratio(H_dist, G.number_of_nodes()),
-            'stretch': stretch,  # to jeszcze musze jakos uporzadkowac
+            'stretch': stretch,
             'stretch_avg': stretch_avg(stretch),
             'stretch_var': stretch_var(stretch),
             'stretch_max': max_stretch(stretch),

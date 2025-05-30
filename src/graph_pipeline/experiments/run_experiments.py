@@ -20,6 +20,7 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
     base_fieldnames: List[str] = [
         "graph", "graph_family", "method", "rho", "n", "m_og", "m_sparse"
     ]
+
     base_metrics: List[str] = [
         'edges_ratio',
         'connected_original',
@@ -88,6 +89,7 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
         key for key in discovered_keys
         if key.startswith('degree_distribution_')
     ])
+
     fieldnames = base_fieldnames + base_metrics + degree_distribution_keys + ["sparsify_time"]
     expected_fields = set(fieldnames)
 

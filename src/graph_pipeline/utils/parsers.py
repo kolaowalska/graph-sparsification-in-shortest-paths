@@ -14,7 +14,7 @@ def parse_edgelist(path: Path, graph_family: str = None) -> GraphWrapper:
 
     family = graph_family or _infer_family(Gnx)
 
-    if family == 'undirected':
+    if family == 'undirected' or family == "bipartite":
         directed = False
 
     nodes = list(Gnx.nodes())

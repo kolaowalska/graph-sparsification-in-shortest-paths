@@ -37,4 +37,4 @@ def plot_avg_stretch_vs_sparsifier(df: pd.DataFrame, plots_dir: Path):
         # plt.show()
         plt.close()
     except Exception as e:
-        print(f"failed to plot avg stretch")
+        print(f"failed to plot avg stretch per sparsifier method")

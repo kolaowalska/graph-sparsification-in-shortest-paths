@@ -1,14 +1,14 @@
 from .base import Sparsifier
 from utils.core import GraphWrapper
-import random
-from collections import defaultdict
+from collections import defaultdict, deque
 import networkx as nx
-# TODO: add user-defined tau
+import numpy as np
+import random
 
 
 class KOLSSparsifier(Sparsifier):
     def __init__(self,
-                 k: int = 3,
+                 k: int = 5,
                  rho: float = 0.5,
                  rescale: bool = True,
                  seed: int = None):
@@ -32,12 +32,17 @@ class KOLSSparsifier(Sparsifier):
         edge_freq = defaultdict(int)
         nodes = list(G.nodes)
 
-        for _ in range(self._k):
-            start = random.choice(nodes)
-            visited, queue = set(), [start]
+        if len(nodes) < self._k:
+            raise ValueError(f"graph has only {len(nodes)} nodes but k={self._k} BFS runs requested")
+
+        start_vertices = random.sample(nodes, self._k)
+
+        for start in start_vertices:
+            visited = set()
+            queue = deque([start])
 
             while queue:
-                current = queue.pop(0)
+                current = queue.popleft()
                 if current in visited:
                     continue
                 visited.add(current)
@@ -45,34 +50,32 @@ class KOLSSparsifier(Sparsifier):
                 neighbors = list(G.successors(current) if G.is_directed() else G.neighbors(current))
 
                 for nb in neighbors:
-                    edge = (current, nb) if G.is_directed() else tuple(sorted([current, nb]))
+                    edge = (current, nb) if G.is_directed() else tuple(sorted((current, nb)))
                     edge_freq[edge] += 1
 
                     if nb not in visited:
                         queue.append(nb)
 
+        if not edge_freq:
+            return GraphWrapper(G.nodes(data=True), G.edges(data=True), directed=G.is_directed())
+
         total_frequencies = sum(edge_freq.values())
-        if total_frequencies == 0:
-            return GraphWrapper(G.nodes(data=True), G.edges(data=True), directed=G.is_directed())  # nic si eni estalo :((((((((((((((((
-
         frequencies = {e: f / total_frequencies for e, f in edge_freq.items()}
-        median = sorted(frequencies.values())[len(frequencies) // 2]
-        tau = median
 
-        # computing retention scores (min(1, freq / τ))
+        freq_values = list(frequencies.values())
+        tau = np.percentile(freq_values, 40)
+        tau = max(tau, 1e-6)
+
         scores = {e: min(1.0, frequencies[e] / tau) for e in frequencies}
 
-        # sorting edges by score descending and keeping top rho-fraction
         rho = rho if rho is not None else self._rho
         keep_count = max(1, int(rho * G.number_of_edges()))
-        top = sorted(scores.items(),
-                     key=lambda x: x[1],
-                     reverse=True)[:keep_count]
+        top = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:keep_count]
 
         final_edges = []
         for (u, v), _ in top:
             og_weight = G[u][v].get('weight', 1)
-            f = edge_freq[(u, v)]
+            f = edge_freq[(u, v)] if G.is_directed() else edge_freq[tuple(sorted((u, v)))]
             new_weight = round(og_weight * f / self._k) if self._rescale else og_weight
             final_edges.append((u, v, {'weight': new_weight}))
 

@@ -32,5 +32,7 @@ class GraphWrapper:
         return self.G.number_of_edges()
 
     def __repr__(self):
-        return(f"GraphWrapper (n={self.n}, m={self.m}, directed={self.is_directed}, "
-               f"family='{self.graph_family}', file='{self.original_filename}')")
+        return (
+            f"GraphWrapper (n={self.n}, m={self.m}, directed={self.is_directed}, "
+            f"family='{self.graph_family}', file='{self.original_filename}')"
+        )
