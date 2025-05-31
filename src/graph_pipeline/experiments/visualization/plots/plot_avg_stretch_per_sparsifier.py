@@ -28,13 +28,12 @@ def plot_avg_stretch_vs_sparsifier(df: pd.DataFrame, plots_dir: Path):
         plt.ylabel('average stretch', fontsize=12)
         plt.xlabel('sparsification method', fontsize=12)
         plt.grid(True, linestyle='--', alpha=0.7)
-        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='method')
-        plt.tight_layout(rect=[0, 0, 0.88, 1])
+        plt.tight_layout()
 
         plt.savefig(plot_filename)
         print(f"plot saved: {plot_filename}")
 
-        # plt.show()
         plt.close()
+
     except Exception as e:
         print(f"failed to plot avg stretch per sparsifier method")

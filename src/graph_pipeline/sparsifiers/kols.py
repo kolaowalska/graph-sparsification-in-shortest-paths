@@ -4,14 +4,11 @@ from collections import defaultdict, deque
 import networkx as nx
 import numpy as np
 import random
+import math
 
 
 class KOLSSparsifier(Sparsifier):
-    def __init__(self,
-                 k: int = 3,
-                 rho: float = 0.5,
-                 rescale: bool = True,
-                 seed: int = None):
+    def __init__(self, k: int = 5, rho: float = 0.5, rescale: bool = True, seed: int = None):
         assert 0 < rho <= 1
         self._k = k
         self._rho = rho
@@ -19,67 +16,114 @@ class KOLSSparsifier(Sparsifier):
         self._seed = seed
 
     def name(self) -> str:
-        return (f"kols (k = {self._k}, "
-                f"rho = {self._rho}")
+        return f"kols (k={self._k}, rho={self._rho})"
 
     def sparsify(self, graph: GraphWrapper, rho: float = None) -> GraphWrapper:
-        assert 0 <= rho <= 1
         G = graph.G
+        n = G.number_of_nodes()
+        m = G.number_of_edges()
 
         if self._seed is not None:
             random.seed(self._seed)
 
-        edge_freq = defaultdict(int)
-        nodes = list(G.nodes)
+        rho = self._rho if rho is None else rho
+        assert 0 < rho <= 1
+        keep_count = max(n - 1, int(math.floor(rho * m)))
 
+        nodes = list(G.nodes())
         if len(nodes) < self._k:
-            raise ValueError(f"graph has only {len(nodes)} nodes but k={self._k} BFS runs requested")
-
+            raise ValueError(f"graph has only {len(nodes)} nodes but k = {self._k} bfs runs were requested")
         start_vertices = random.sample(nodes, self._k)
 
-        for start in start_vertices:
-            visited = set([start])
-            queue = deque([start])
+        first_seed = start_vertices[0]
+        visited = {first_seed}
+        queue = deque([first_seed])
+        T0 = set()  # this stores either (u,v) for directed or sorted((u,v)) for undirected
+
+        while queue:
+            u = queue.popleft()
+            for v in (G.successors(u) if G.is_directed() else G.neighbors(u)):
+                if v not in visited:
+                    visited.add(v)
+
+                    # if G is directed, using exactly (u,v); if undirected, sorted ((u, v))
+                    if G.is_directed():
+                        e0 = (u, v)
+                    else:
+                        e0 = tuple(sorted((u, v)))
+                    T0.add(e0)
+
+                    queue.append(v)
+
+        # running bfs k times to count how many times each edge is used as a tree‐edge
+        edge_freq = defaultdict(int)
+        for seed in start_vertices:
+            visited = {seed}
+            queue = deque([seed])
 
             while queue:
                 u = queue.popleft()
-                for v in G.neighbors(u):
+                for v in (G.successors(u) if G.is_directed() else G.neighbors(u)):
                     if v not in visited:
                         visited.add(v)
-                        edge = tuple(sorted((u, v)))
-                        edge_freq[edge] += 1
+
+                        # if G is directed, using exactly (u,v); if undirected, sorted ((u, v))
+                        if G.is_directed():
+                            e = (u, v)
+                        else:
+                            e = tuple(sorted((u, v)))
+
+                        edge_freq[e] += 1
                         queue.append(v)
 
-        if not edge_freq:
-            return GraphWrapper(G.nodes(data=True), G.edges(data=True), directed=G.is_directed())
+        scores = {e: edge_freq[e] / float(self._k) for e in edge_freq}
 
-        total_frequencies = sum(edge_freq.values())
-        frequencies = {e: f / total_frequencies for e, f in edge_freq.items()}
+        other_edges = []
+        if G.is_directed():
+            for (u, v) in G.edges():
+                if (u, v) not in T0:
+                    other_edges.append((u, v))
+        else:
+            for (u, v) in G.edges():
+                e_und = tuple(sorted((u, v)))
+                if e_und not in T0:
+                    other_edges.append((u, v))
 
-        freq_values = list(frequencies.values())
-        tau = np.percentile(freq_values, 40)
-        tau = max(tau, 1e-6)
+        def get_edge_score(uv):
+            if G.is_directed():
+                return scores.get(uv, 0.0)
+            else:
+                e_undirected = tuple(sorted(uv))
+                return scores.get(e_undirected, 0.0)
 
-        scores = {e: min(1.0, frequencies[e] / tau) for e in frequencies}
+        other_edges_sorted = sorted(other_edges,
+                                    key=lambda uv: get_edge_score(uv),
+                                    reverse=True)
 
-        rho = rho if rho is not None else self._rho
-        keep_count = max(1, int(rho * G.number_of_edges()))
-        top = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:keep_count]
+        final_edges = list(T0)
+        needed = keep_count - len(final_edges)
+        if needed > 0:
+            needed = min(needed, len(other_edges_sorted))
+            final_edges.extend(other_edges_sorted[:needed])
 
-        final_edges = []
-        for (u, v), _ in top:
-            og_weight = G[u][v].get('weight', 1)
-            f = edge_freq[(u, v)] if G.is_directed() else edge_freq[tuple(sorted((u, v)))]
-            new_weight = round(og_weight * f / self._k) if self._rescale else og_weight
-            final_edges.append((u, v, {'weight': new_weight}))
+        H_edges = []
+        for uv in final_edges:
+            if G.is_directed():
+                (u, v) = uv
+            else:
+                (u, v) = uv
+            orig_w = G[u][v].get('weight', 1)
 
-        H_wrapper = GraphWrapper(G.nodes(data=True), final_edges, directed=G.is_directed())
+            if self._rescale:
+                if G.is_directed():
+                    f = edge_freq.get((u, v), 0)
+                else:
+                    f = edge_freq.get(tuple(sorted((u, v))), 0)
+                new_w = round(orig_w * (f / float(self._k)))
+            else:
+                new_w = orig_w
 
-        # nowa atrakcja (ktora nie dziala):
-        # zapewnienie spojnosci poprzez odbudowanie mostow dla grafow nieskierowanych
-        if not G.is_directed() and not nx.is_connected(H_wrapper.G):
-            for u, v in nx.bridges(G):
-                if not H_wrapper.G.has_edge(u, v):
-                    H_wrapper.G.add_edge(u, v, weight=G[u][v].get('weight', 1))
+            H_edges.append((u, v, {"weight": new_w}))
 
+        H_wrapper = GraphWrapper(G.nodes(data=True), H_edges, directed=G.is_directed())
         return H_wrapper
