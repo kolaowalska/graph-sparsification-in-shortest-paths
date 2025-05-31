@@ -8,7 +8,7 @@ import math
 
 
 class KOLSSparsifier(Sparsifier):
-    def __init__(self, k: int = 5, rho: float = 0.5, rescale: bool = True, seed: int = None):
+    def __init__(self, k: int = 3, rho: float = 0.5, rescale: bool = True, seed: int = None):
         assert 0 < rho <= 1
         self._k = k
         self._rho = rho

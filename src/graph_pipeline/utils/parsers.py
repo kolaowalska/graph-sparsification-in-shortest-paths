@@ -5,6 +5,16 @@ from utils.core import GraphWrapper
 from pathlib import Path
 
 
+def extract_largest_component(G: nx.Graph) -> nx.Graph:
+    if G.is_directed():
+        components = list(nx.weakly_connected_components(G))
+    else:
+        components = list(nx.connected_components(G))
+
+    largest = max(components, key=len)
+    return G.subgraph(largest).copy()
+
+
 def parse_edgelist(path: Path, graph_family: str = None) -> GraphWrapper:
     Gnx = nx.read_weighted_edgelist(path, nodetype=int, create_using=nx.DiGraph())
     directed = not nx.is_directed_acyclic_graph(Gnx.to_undirected(as_view=True))
@@ -12,6 +22,7 @@ def parse_edgelist(path: Path, graph_family: str = None) -> GraphWrapper:
     if not directed:
         Gnx = Gnx.to_undirected()
 
+    Gnx = extract_largest_component(Gnx)
     family = graph_family or _infer_family(Gnx)
 
     if family == 'undirected' or family == "bipartite":
@@ -49,6 +60,7 @@ def parse_dict_edgelist(path: Path, graph_family: str = None) -> GraphWrapper:
     if not directed:
         Gnx = Gnx.to_undirected()
 
+    Gnx = extract_largest_component(Gnx)
     family = graph_family or _infer_family(Gnx)
     nodes = list(Gnx.nodes())
     edges = [
@@ -76,6 +88,7 @@ def parse_adj_matrix(path: Path, graph_family: str = None) -> GraphWrapper:
 
     Gnx = nx.DiGraph() if directed else nx.Graph()
     Gnx.add_weighted_edges_from(edges)
+    Gnx = extract_largest_component(Gnx)
     family = graph_family or _infer_family(Gnx)
 
     return GraphWrapper(list(range(n)), edges,

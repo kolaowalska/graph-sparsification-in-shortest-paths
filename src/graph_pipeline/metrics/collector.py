@@ -25,6 +25,8 @@ class MetricsCollector:
     def add(self, name: str, sparsified: GraphWrapper):
         G = getattr(self.original, 'G', getattr(self.original, '_G', self.original))
         H = getattr(sparsified, 'G', getattr(sparsified, '_G', sparsified))
+        print("number of edges G: ", G.number_of_edges())
+        print("number of edges H: ", H.number_of_edges())
 
         # distance metrics
         G_dist = apsp_matrix(G, weight='weight')
