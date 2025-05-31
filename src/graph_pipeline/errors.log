@@ -178,3 +178,25 @@ Traceback (most recent call last):
   File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 41, in sparsify
     queue = deque([start])
 NameError: name 'deque' is not defined
+2025-05-31 16:00:16,622 [ERROR] error processing directed2.edgelist: 5
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 71, in sparsify
+    og_weight = G[u][v].get('weight', 1)
+  File "/home/kols/.local/lib/python3.10/site-packages/networkx/classes/coreviews.py", line 54, in __getitem__
+    return self._atlas[key]
+KeyError: 5
+2025-05-31 16:00:16,649 [ERROR] error processing directed5.edgelist: 4
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 71, in sparsify
+    og_weight = G[u][v].get('weight', 1)
+  File "/home/kols/.local/lib/python3.10/site-packages/networkx/classes/coreviews.py", line 54, in __getitem__
+    return self._atlas[key]
+KeyError: 4

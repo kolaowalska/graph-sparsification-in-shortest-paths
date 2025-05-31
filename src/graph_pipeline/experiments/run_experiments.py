@@ -49,7 +49,9 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
         try:
             G = infer_and_parse(file_path, family)
 
-            orig_metrics = compute_metrics(G, G, "original")
+            # orig_metrics = compute_metrics(G, G, "original")
+            timed_metrics = timer(compute_metrics)
+            orig_metrics, metric_time_orig = timed_metrics(G, G, "original")
             discovered_keys.update(orig_metrics.keys())
             row = {
                 "graph": file_path.name,
@@ -60,14 +62,17 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
                 "m_og": G.m,
                 "m_sparse": None,
                 **orig_metrics,
-                "sparsify_time": None
+                "sparsify_time": None,
+                "metric_time": metric_time_orig
             }
             rows_data.append(row)
 
             for method_name, sparsifier_fn in sparsifiers_registry.items():
                 timed_fn = timer(sparsifier_fn)
                 H, elapsed = timed_fn(G, rho)
-                met = compute_metrics(G, H, method_name)
+                # met = compute_metrics(G, H, method_name)
+                timed_metrics = timer(compute_metrics)
+                met, metric_time_sparse = timed_metrics(G, H, method_name)
                 discovered_keys.update(met.keys())
                 row = {
                     "graph": file_path.name,
@@ -78,7 +83,8 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
                     "m_og": G.m,
                     "m_sparse": H.m,
                     **met,
-                    "sparsify_time": elapsed
+                    "sparsify_time": elapsed,
+                    "metric_time": metric_time_sparse
                 }
                 rows_data.append(row)
 
@@ -90,7 +96,7 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
         if key.startswith('degree_distribution_')
     ])
 
-    fieldnames = base_fieldnames + base_metrics + degree_distribution_keys + ["sparsify_time"]
+    fieldnames = base_fieldnames + base_metrics + degree_distribution_keys + ["sparsify_time", "metric_time"]
     expected_fields = set(fieldnames)
 
     if not discovered_keys.issubset(expected_fields):

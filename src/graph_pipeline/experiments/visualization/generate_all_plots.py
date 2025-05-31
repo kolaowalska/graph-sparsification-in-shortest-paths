@@ -6,6 +6,8 @@ from experiments.visualization.plots.plot_sparsification_time import plot_sparsi
 from experiments.visualization.plots.plot_avg_stretch_vs_edge_ratio import plot_stretch_vs_edges_ratio
 from experiments.visualization.plots.plot_degree_distributions import plot_degree_distributions
 from experiments.visualization.plots.plot_avg_stretch_per_sparsifier import plot_avg_stretch_vs_sparsifier
+from experiments.visualization.plots.plot_metric_time_by_method import plot_metric_time_by_method
+
 
 # RESULTS_FILE = Path("../../results")
 # RESULTS_FILE = Path("../../results/directed_results.csv")
@@ -45,6 +47,7 @@ def generate_plots(results_path: Path = None, plots_dir: Path = None):
     plot_stretch_vs_edges_ratio(df, plots_dir)
     plot_degree_distributions(df, plots_dir)
     plot_avg_stretch_vs_sparsifier(df, plots_dir)
+    plot_metric_time_by_method(df, plots_dir)
 
     print(f"\nall plots attempted. check the '{plots_dir}' directory")
 

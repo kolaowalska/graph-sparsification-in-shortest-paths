@@ -8,7 +8,7 @@ import random
 
 class KOLSSparsifier(Sparsifier):
     def __init__(self,
-                 k: int = 5,
+                 k: int = 3,
                  rho: float = 0.5,
                  rescale: bool = True,
                  seed: int = None):
@@ -38,23 +38,17 @@ class KOLSSparsifier(Sparsifier):
         start_vertices = random.sample(nodes, self._k)
 
         for start in start_vertices:
-            visited = set()
+            visited = set([start])
             queue = deque([start])
 
             while queue:
-                current = queue.popleft()
-                if current in visited:
-                    continue
-                visited.add(current)
-
-                neighbors = list(G.successors(current) if G.is_directed() else G.neighbors(current))
-
-                for nb in neighbors:
-                    edge = (current, nb) if G.is_directed() else tuple(sorted((current, nb)))
-                    edge_freq[edge] += 1
-
-                    if nb not in visited:
-                        queue.append(nb)
+                u = queue.popleft()
+                for v in G.neighbors(u):
+                    if v not in visited:
+                        visited.add(v)
+                        edge = tuple(sorted((u, v)))
+                        edge_freq[edge] += 1
+                        queue.append(v)
 
         if not edge_freq:
             return GraphWrapper(G.nodes(data=True), G.edges(data=True), directed=G.is_directed())
