@@ -1,0 +1,225 @@
+2025-06-01 10:27:12,862 [ERROR] error processing bipartite1.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:27:12,909 [ERROR] error processing bipartite2.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:27:12,933 [ERROR] error processing bipartite3.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:27:12,956 [ERROR] error processing bipartite4.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:27:12,979 [ERROR] error processing bipartite5.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:12,631 [ERROR] error processing bipartite1.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:12,676 [ERROR] error processing bipartite2.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:12,697 [ERROR] error processing bipartite3.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:12,719 [ERROR] error processing bipartite4.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:12,743 [ERROR] error processing bipartite5.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:13,269 [ERROR] error processing directed1.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:13,295 [ERROR] error processing directed2.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:13,320 [ERROR] error processing directed3.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:13,345 [ERROR] error processing directed4.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:13,371 [ERROR] error processing directed5.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:13,803 [ERROR] error processing undirected1.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:13,826 [ERROR] error processing undirected2.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:13,850 [ERROR] error processing undirected3.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:13,873 [ERROR] error processing undirected4.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:13,895 [ERROR] error processing undirected5.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:14,379 [ERROR] error processing unweighted1.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:14,398 [ERROR] error processing unweighted2.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:14,419 [ERROR] error processing unweighted3.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:14,443 [ERROR] error processing unweighted4.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
+2025-06-01 10:30:14,468 [ERROR] error processing unweighted5.edgelist: 
+Traceback (most recent call last):
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/experiments/run_experiments.py", line 72, in main
+    H, elapsed = timed_fn(G, rho)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/utils/timer.py", line 18, in wrapper
+    result = func(*args, **kwargs)
+  File "/mnt/c/Users/olala/Desktop/sem_6/prosemi/graph_sparsification/src/graph_pipeline/sparsifiers/kols.py", line 30, in sparsify
+    assert 0 < rho <= 1
+AssertionError
