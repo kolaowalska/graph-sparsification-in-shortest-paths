@@ -1,1 +1,0 @@
-graph,graph_family,method,rho,n,m_og,m_sparse,edges_ratio,connected_original,connected_sparsified,diameter_original,diameter_sparsified,unreachable_pairs_ratio,stretch_avg,stretch_var,stretch_max,laplacian_qf_original,laplacian_qf_sparsified,sparsify_time

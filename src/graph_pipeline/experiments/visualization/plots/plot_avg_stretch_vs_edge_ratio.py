@@ -21,10 +21,7 @@ def plot_stretch_vs_edges_ratio(df: pd.DataFrame, plots_dir: Path):
         print("no valid data to plot after filtering infinities")
         return
 
-    print(f"Plotting {len(df)} points:")
-    print(df[['edges_ratio', 'stretch_avg', 'method']].head())
-
-    plt.figure(figsize=(14, 8))
+    plt.figure(figsize=(12, 8))
     sns.scatterplot(
         data=df,
         x='edges_ratio',

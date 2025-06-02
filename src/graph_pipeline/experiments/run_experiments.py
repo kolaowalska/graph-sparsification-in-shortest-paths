@@ -7,6 +7,7 @@ from utils.parsers import infer_and_parse
 from sparsifiers import sparsifiers_registry
 from utils.flatten_metrics import compute_metrics
 from utils.timer import logger, timer
+from experiments.visualization.utils.aggregate_data import aggregate_by_family
 
 
 def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family: str = None):
@@ -114,7 +115,11 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
                 row.setdefault(key, None)
             writer.writerow(row)
 
-    logger.info(f"results successfully written to {out_file}")
+    logger.info(f"results by graph successfully written to {out_file}")
+
+    agg_filename = out_file.parent / f"{family}_aggregated.csv"
+    aggregate_by_family(out_file, agg_filename)
+    logger.info(f"aggregated results by family written to {agg_filename}")
 
 
 if __name__ == "__main__":

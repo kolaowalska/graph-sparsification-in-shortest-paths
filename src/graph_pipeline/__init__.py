@@ -3,16 +3,18 @@ from tqdm import tqdm
 from utils.preprocessing import process_unprocessed
 from utils.parsers import infer_and_parse
 from utils.visualizer import visualize_sparsification
+from utils.graph_generator import generate_graphs
 from sparsifiers import sparsifiers_registry
 from experiments import run_experiments as rexp
-from experiments.visualization import generate_all_plots as plot
+from experiments.visualization import generate_plots as plot
+from experiments.visualization import generate_aggregated_plots as agplot
 from experiments.visualization.plots.plot_stretch_vs_rho import plot_stretch_vs_rho
 
-UNPROCESSED_DIR = Path("small_data/unprocessed")
-PROCESSED_DIR = Path("small_data/processed")
-RESULTS_DIR = Path("./small_results")
+UNPROCESSED_DIR = Path("data/unprocessed")
+PROCESSED_DIR = Path("data/processed")
+RESULTS_DIR = Path("./results")
 IMAGES_DIR = RESULTS_DIR / "images"
-
+GENERATE_GRAPHS = True
 MULTI_RHO = False
 # RHO = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0] if MULTI_RHO else [0.2]
 RHO = 0.2
@@ -21,8 +23,6 @@ RHO = 0.2
 '''
 - dodac wykresy pokazujace rozbieznosc roznych metryk w zaleznosci od prune rate 
 dla kazdego sparsyfikatora w obrebie 1 rodziny grafow?? za duzo slow to jest
-- przepuscic wieksze grafy przez ten kolchoz 
-- cos jeszcze wymysle
 '''
 
 
@@ -52,9 +52,9 @@ if __name__ == "__main__":
     results_dir = Path("./results")
     rho = 0.2  # desired prune rate, 0 <= rho <= 1
     '''
-
+    if GENERATE_GRAPHS:
+        generate_graphs()
     families = None
-
     process_unprocessed(UNPROCESSED_DIR, PROCESSED_DIR)
 
     if families is None:
@@ -69,16 +69,20 @@ if __name__ == "__main__":
             tqdm.write(f"skipping missing family: {family}")
             continue
 
-        out_file = RESULTS_DIR / f"{family}_results.csv"
-        tqdm.write(f"running experiments for '{family}', output → {out_file}")
+        out_file = RESULTS_DIR / f"{family}" / f"{family}_results.csv"
+        out_file_agr = RESULTS_DIR / f"{family}" / f"{family}_aggregated.csv"
 
         setattr(rexp, 'data_dir', data_dir)
         setattr(rexp, 'out_file', out_file)
         setattr(rexp, 'family', family)
 
         rexp.main(rho=RHO, data_dir=data_dir, out_file=out_file, family=family)
-        plot.generate_plots(out_file, RESULTS_DIR / f"{family}_plots")
-        draw_small_graphs(family)
+        tqdm.write(f"running experiments for '{family}', output → {out_file}")
+
+        plot.generate_plots(out_file, RESULTS_DIR / f"{family}" / f"plots")
+        agplot.generate_aggregated_plots(out_file_agr, RESULTS_DIR / f"aggregated_plots")
+
+        # draw_small_graphs(family)
 
 
     '''
@@ -88,11 +92,11 @@ if __name__ == "__main__":
         rho_dir.mkdir(parents=True, exist_ok=True)
 
         for family in families:
-            print(f"\nRunning experiments for '{family}' at rho = {rho}")
+            print(f"\nrunning experiments for '{family}' at rho = {rho}")
 
             data_dir = PROCESSED_DIR / family
             if not data_dir.exists():
-                tqdm.write(f"Skipping missing family: {family}")
+                tqdm.write(f"skipping missing family: {family}")
                 continue
 
             out_file = rho_dir / f"{family}_results.csv"
