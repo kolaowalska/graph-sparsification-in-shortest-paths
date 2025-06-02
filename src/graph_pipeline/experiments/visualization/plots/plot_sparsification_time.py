@@ -29,7 +29,7 @@ def plot_sparsification_time(df: pd.DataFrame, plots_dir: Path):
         errorbar=None
     )
 
-    plt.title('average sparsification time by method and graph family', fontsize=16)
+    plt.title('average sparsification time by method', fontsize=16)
     plt.ylabel('sparsification time (s)', fontsize=12)
     plt.xlabel('sparsification method', fontsize=12)
     plt.legend(title='graph family')

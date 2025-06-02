@@ -7,7 +7,8 @@ from utils.graph_generator import generate_graphs
 from sparsifiers import sparsifiers_registry
 from experiments import run_experiments as rexp
 from experiments.visualization import generate_plots as plot
-from experiments.visualization import generate_aggregated_plots as agplot
+from experiments.visualization import generate_aggregated_plots as agrplot
+from experiments.visualization.utils.fuse_aggregated_data import fuse_aggregated_families
 from experiments.visualization.plots.plot_stretch_vs_rho import plot_stretch_vs_rho
 
 UNPROCESSED_DIR = Path("data/unprocessed")
@@ -18,12 +19,6 @@ GENERATE_GRAPHS = True
 MULTI_RHO = False
 # RHO = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0] if MULTI_RHO else [0.2]
 RHO = 0.2
-
-## TODO:
-'''
-- dodac wykresy pokazujace rozbieznosc roznych metryk w zaleznosci od prune rate 
-dla kazdego sparsyfikatora w obrebie 1 rodziny grafow?? za duzo slow to jest
-'''
 
 
 def draw_small_graphs(family: str):
@@ -80,9 +75,14 @@ if __name__ == "__main__":
         tqdm.write(f"running experiments for '{family}', output → {out_file}")
 
         plot.generate_plots(out_file, RESULTS_DIR / f"{family}" / f"plots")
-        agplot.generate_aggregated_plots(out_file_agr, RESULTS_DIR / f"aggregated_plots")
+        # agrplot.generate_aggregated_plots(out_file_agr, RESULTS_DIR / f"aggregated_plots")
 
         # draw_small_graphs(family)
+
+    global_agg_csv = RESULTS_DIR / "all_families_aggregated.csv"
+    fuse_aggregated_families(results_dir=RESULTS_DIR, output_csv=global_agg_csv)
+
+    agrplot.generate_aggregated_plots(global_agg_csv, RESULTS_DIR / "aggregated_plots")
 
 
     '''

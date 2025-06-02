@@ -44,5 +44,4 @@ def plot_stretch_vs_edges_ratio(df: pd.DataFrame, plots_dir: Path):
     plt.savefig(plot_filename)
     print(f"plot saved: {plot_filename}")
 
-    # plt.show()
     plt.close()

@@ -8,6 +8,7 @@ from sparsifiers import sparsifiers_registry
 from utils.flatten_metrics import compute_metrics
 from utils.timer import logger, timer
 from experiments.visualization.utils.aggregate_data import aggregate_by_family
+from experiments.visualization.utils.fuse_aggregated_data import fuse_aggregated_families
 
 
 def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family: str = None):
@@ -120,6 +121,7 @@ def main(rho: float = 0.2, data_dir: Path = None, out_file: Path = None, family:
     agg_filename = out_file.parent / f"{family}_aggregated.csv"
     aggregate_by_family(out_file, agg_filename)
     logger.info(f"aggregated results by family written to {agg_filename}")
+
 
 
 if __name__ == "__main__":
