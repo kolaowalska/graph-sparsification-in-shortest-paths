@@ -32,20 +32,6 @@ class KOLSSparsifier(Sparsifier):
             raise ValueError(f"graph has only {len(nodes)} nodes but k = {self._k} BFS runs were requested")
         start_vertices = random.sample(nodes, self._k)
 
-        first_seed = start_vertices[0]
-        visited = {first_seed}
-        queue = deque([first_seed])
-        T0 = set()
-        while queue:
-            u = queue.popleft()
-            neighbors = G.successors(u) if G.is_directed() else G.neighbors(u)
-            for v in neighbors:
-                if v not in visited:
-                    visited.add(v)
-                    e0 = (u, v) if G.is_directed() else tuple(sorted((u, v)))
-                    T0.add(e0)
-                    queue.append(v)
-
         edge_freq = defaultdict(int)
         for seed in start_vertices:
             visited = {seed}
@@ -60,31 +46,17 @@ class KOLSSparsifier(Sparsifier):
                         edge_freq[e] += 1
                         queue.append(v)
 
-        other_edges = []
-        if G.is_directed():
-            for u, v in G.edges():
-                if (u, v) not in T0:
-                    other_edges.append((u, v))
-        else:
-            for u, v in G.edges():
-                euv = tuple(sorted((u, v)))
-                if euv not in T0:
-                    other_edges.append((u, v))
-
+        all_edges = list(G.edges())
         def freq_score(uv):
             key = uv if G.is_directed() else tuple(sorted(uv))
             return edge_freq.get(key, 0)
 
-        other_edges.sort(key=freq_score, reverse=True)
+        all_edges.sort(key=freq_score, reverse=True)
 
-        final_edges = list(T0)
-        needed = keep_count - len(final_edges)
-        if needed > 0:
-            final_edges.extend(other_edges[:needed])
+        chosen = all_edges[:keep_count]
 
         H_edges = []
-        for uv in final_edges:
-            u, v = uv
+        for u, v in chosen:
             orig_w = G[u][v].get("weight", 1)
             H_edges.append((u, v, {"weight": orig_w}))
 
