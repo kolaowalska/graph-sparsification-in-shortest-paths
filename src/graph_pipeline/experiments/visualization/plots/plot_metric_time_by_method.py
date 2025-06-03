@@ -30,7 +30,7 @@ def plot_metric_time_by_method(df: pd.DataFrame, plots_dir: Path):
 
     # plt.title('average metric computation time by method and graph family', fontsize=16)
     plt.ylabel('metric computation time (s)', fontsize=12)
-    plt.xlabel('sparsification method', fontsize=12)
+    plt.xlabel('sparsification method (rho = 0.2)', fontsize=12)
     plt.legend(title='graph family')
     plt.grid(axis='y', linestyle='--', alpha=0.6)
     plt.tight_layout()

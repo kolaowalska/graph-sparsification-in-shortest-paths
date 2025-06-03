@@ -29,9 +29,9 @@ def plot_edge_ratio(df: pd.DataFrame, plots_dir: Path):
         errorbar=None
     )
 
-    plt.title('average edge ratio', fontsize=16)
+    # plt.title('average edge ratio', fontsize=16)
     plt.ylabel('edges ratio (m_sparse / m_og)', fontsize=12)
-    plt.xlabel('sparsification method', fontsize=12)
+    plt.xlabel('sparsification method (rho = 0.2)', fontsize=12)
     plt.legend(title='graph family')
     plt.grid(axis='y', linestyle='--', alpha=0.6)
     plt.tight_layout()

@@ -24,9 +24,9 @@ def plot_avg_stretch_vs_sparsifier(df: pd.DataFrame, plots_dir: Path):
     try:
         plt.figure(figsize=(10, 8))
         sns.boxplot(data=df, x='method', y='stretch_avg', hue='method', palette='viridis')
-        plt.title(f'average stretch by sparsification method', fontsize=16)
+        # plt.title(f'average stretch by sparsification method', fontsize=16)
         plt.ylabel('average stretch', fontsize=12)
-        plt.xlabel('sparsification method', fontsize=12)
+        plt.xlabel('sparsification method (rho = 0.2)', fontsize=12)
         plt.grid(True, linestyle='--', alpha=0.7)
         plt.tight_layout()
 

@@ -21,7 +21,7 @@ def plot_stretch_vs_edges_ratio(df: pd.DataFrame, plots_dir: Path):
         print("no valid data to plot after filtering infinities")
         return
 
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(10, 8))
     sns.scatterplot(
         data=df,
         x='edges_ratio',
@@ -32,7 +32,7 @@ def plot_stretch_vs_edges_ratio(df: pd.DataFrame, plots_dir: Path):
         alpha=0.7
     )
 
-    plt.title('average stretch vs. edges ratio for all graphs', fontsize=16)
+    # plt.title('average stretch vs. edges ratio for all graphs', fontsize=16)
     plt.xlabel('edges ratio (m_sparse / m_original)', fontsize=12)
     plt.ylabel('average stretch', fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.7)
