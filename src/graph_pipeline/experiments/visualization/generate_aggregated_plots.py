@@ -4,12 +4,13 @@ from pathlib import Path
 # from experiments.visualization.family_plots import plot_within_family
 # from experiments.visualization.general_plots import plot_across_families
 
-from experiments.visualization.plots.plot_edge_ratio import plot_edge_ratio
+from experiments.visualization.plots.edge_ratio_barplot import plot_edge_ratio
 from experiments.visualization.plots.plot_sparsification_time import plot_sparsification_time
 from experiments.visualization.plots.plot_avg_stretch_vs_edge_ratio import plot_stretch_vs_edges_ratio
 from experiments.visualization.plots.plot_degree_distributions import plot_degree_distributions
 from experiments.visualization.plots.plot_avg_stretch_per_sparsifier import plot_avg_stretch_vs_sparsifier
 from experiments.visualization.plots.plot_metric_time_by_method import plot_metric_time_by_method
+from experiments.visualization.plots.plot_metric_time_increase import plot_metric_time_increase
 
 
 # RESULTS_FILE = Path("../../results")
@@ -50,6 +51,7 @@ def generate_aggregated_plots(results_path: Path = None, plots_dir: Path = None)
     plot_degree_distributions(df, plots_dir)
     plot_avg_stretch_vs_sparsifier(df, plots_dir)
     plot_metric_time_by_method(df, plots_dir)
+    plot_metric_time_increase(df, plots_dir)
 
     print(f"\nall plots attempted. check the '{plots_dir}' directory")
 

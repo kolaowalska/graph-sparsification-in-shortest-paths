@@ -6,7 +6,6 @@ from pathlib import Path
 
 # average sparsification time by method and graph family
 def plot_sparsification_time(df: pd.DataFrame, plots_dir: Path):
-    # Check for required columns
     if not all(col in df.columns for col in ['sparsify_time', 'method', 'graph_family']):
         print("skipping 'sparsification time' plot: required columns are missing")
         return

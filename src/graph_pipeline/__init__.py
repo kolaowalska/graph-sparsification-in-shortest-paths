@@ -71,8 +71,8 @@ if __name__ == "__main__":
         setattr(rexp, 'out_file', out_file)
         setattr(rexp, 'family', family)
 
-        rexp.main(rho=RHO, data_dir=data_dir, out_file=out_file, family=family)
-        tqdm.write(f"running experiments for '{family}', output → {out_file}")
+        # rexp.main(rho=RHO, data_dir=data_dir, out_file=out_file, family=family)
+        # tqdm.write(f"running experiments for '{family}', output → {out_file}")
 
         plot.generate_plots(out_file, RESULTS_DIR / f"{family}" / f"plots")
         # agrplot.generate_aggregated_plots(out_file_agr, RESULTS_DIR / f"aggregated_plots")

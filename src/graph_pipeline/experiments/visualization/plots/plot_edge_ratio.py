@@ -4,7 +4,7 @@ import seaborn as sns
 from pathlib import Path
 
 
-# edge ratio by sparsifier method and graph family
+
 def plot_edge_ratio(df: pd.DataFrame, plots_dir: Path):
     if not all(col in df.columns for col in ['edges_ratio', 'method', 'graph_family']):
         print("skipping 'edge ratio' plot: required columns are missing")

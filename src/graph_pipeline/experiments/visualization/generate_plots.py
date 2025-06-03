@@ -90,7 +90,7 @@ def generate_plots(results_path: Path = None, plots_dir: Path = None):
     plot_edge_ratio(df, plots_dir)
     plot_sparsification_time(df, plots_dir)
     plot_stretch_vs_edges_ratio(df, plots_dir)
-    plot_degree_distributions(df, plots_dir)
+    # plot_degree_distributions(df, plots_dir)
     plot_avg_stretch_vs_sparsifier(df, plots_dir)
     plot_metric_time_by_method(df, plots_dir)
 

@@ -6,7 +6,6 @@ from pathlib import Path
 
 # average metric computation time by method and graph family
 def plot_metric_time_by_method(df: pd.DataFrame, plots_dir: Path):
-    # Check for required columns
     if not all(col in df.columns for col in ['metric_time', 'method', 'graph_family']):
         print("skipping 'metric time by method' plot: required columns are missing")
         return
@@ -14,7 +13,7 @@ def plot_metric_time_by_method(df: pd.DataFrame, plots_dir: Path):
     df = df[df['metric_time'].notna()]
 
     grouped = (
-        df
+        df[df['method'] != 'original']
         .groupby(['graph_family', 'method'], as_index=False)['metric_time']
         .mean()
     )
