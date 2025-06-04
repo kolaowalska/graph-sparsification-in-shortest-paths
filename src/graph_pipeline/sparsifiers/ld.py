@@ -10,8 +10,6 @@ class LocalDegreeSparsifier(Sparsifier):
     def sparsify(self, graph: GraphWrapper, rho: float = None) -> GraphWrapper:
         assert 0 <= rho <= 1
         G = graph.G
-
-        # if G is directed, then edges := out_edges, degree := out_degree
         kept_edges = set()
 
         for v in G.nodes():
