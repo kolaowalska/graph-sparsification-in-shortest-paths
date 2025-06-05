@@ -1,7 +1,6 @@
 from .base import Sparsifier
 from utils.core import GraphWrapper
 from collections import defaultdict, deque
-import networkx as nx
 import random
 import math
 

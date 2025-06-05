@@ -1,8 +1,9 @@
+import math
+import numpy as np
 from .base import Sparsifier
 from utils.core import GraphWrapper
 from utils.symmetrizer import symmetrize_graph
-import random
-import math
+
 
 
 class KNeighborSparsifier(Sparsifier):
@@ -20,6 +21,7 @@ class KNeighborSparsifier(Sparsifier):
             G = symmetrize_graph(G, weight_attr='weight', mode='avg')
 
         kept_edges = set()
+
         for v in G.nodes():
             edges = list(G.edges(v, data=True))
             d_out = len(edges)
@@ -30,12 +32,20 @@ class KNeighborSparsifier(Sparsifier):
             k_v = max(1, math.floor(d_out ** rho))
 
             if d_out <= k_v:
-                for edge in edges:
-                    kept_edges.add((edge[0], edge[1], edge[2].get('weight', 1)))
+                for u, w, data in edges:
+                    weight = data.get('weight', 1)
+                    kept_edges.add((u, w, weight))
             else:
-                edges_sorted = sorted(edges, key=lambda x: x[2].get('weight', 1))
-                for edge in edges_sorted[:k_v]:
-                    kept_edges.add((edge[0], edge[1], edge[2].get('weight', 1)))
+                weights = [data.get('weight', 1) for _, _, data in edges]
+                total_weight = sum(weights)
+                probs = [w / total_weight for w in weights]
+
+                sampled_indices = np.random.choice(d_out, size=k_v, replace=False, p=probs)
+
+                for idx in sampled_indices:
+                    u, w, data = edges[idx]
+                    weight = data.get('weight', 1)
+                    kept_edges.add((u, w, weight))
 
         final_edges = list(kept_edges)
         return GraphWrapper(G.nodes(data=True), final_edges, directed=G.is_directed())
