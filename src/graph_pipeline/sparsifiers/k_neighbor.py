@@ -18,7 +18,7 @@ class KNeighborSparsifier(Sparsifier):
         G = graph.G
 
         if G.is_directed():
-            G = symmetrize_graph(G, weight_attr='weight', mode='avg')
+            G = symmetrize_graph(G, weight_attr='weight', mode='sum')
 
         kept_edges = set()
 

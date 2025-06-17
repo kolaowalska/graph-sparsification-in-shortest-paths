@@ -4,7 +4,7 @@ import random
 import networkx as nx
 import numpy as np
 
-random.seed(27)
+random.seed(69)
 
 
 def generate_graphs():
@@ -15,6 +15,10 @@ def generate_graphs():
         "unweighted": Path("./data/unprocessed/unweighted"),
         "undirected": Path("./data/unprocessed/undirected")
     }
+
+    num = 26  # number of graphs to be generated for each family + 1
+    minN = 20  # minimum number of vertices
+    maxN = 100  # maximum number of vertices
 
     for dir_path in base_dirs.values():
         dir_path.mkdir(parents=True, exist_ok=True)
@@ -40,10 +44,10 @@ def generate_graphs():
                 G.add_edge(u, v)
         return G
 
-    for i in range(1, 26):
+    for i in range(1, num):
         while True:
-            n1 = random.randint(10, 50)
-            n2 = random.randint(10, 50)
+            n1 = random.randint(minN, maxN)
+            n2 = random.randint(minN, maxN)
             B = nx.bipartite.random_graph(n1, n2, p=0.2)
             if nx.is_connected(B) and B.number_of_edges() <= 1000:
                 break
@@ -51,9 +55,9 @@ def generate_graphs():
             B[u][v]['weight'] = random.uniform(0.1, 20.0)
         save_weighted_edges(B, base_dirs["bipartite"] / f"bipartite{i}.edgelist")
 
-    for i in range(1, 26):
+    for i in range(1, num):
         while True:
-            n = random.randint(20, 100)
+            n = random.randint(minN, maxN)
             G = nx.gnp_random_graph(n, p=0.1, directed=True)
             if nx.is_weakly_connected(G) and G.number_of_edges() <= 1000:
                 break
@@ -61,9 +65,9 @@ def generate_graphs():
             G[u][v]['weight'] = random.uniform(0.1, 20.0)
         save_weighted_edges(G, base_dirs["directed"] / f"directed{i}.edgelist")
 
-    for i in range(1, 26):
+    for i in range(1, num):
         while True:
-            n = random.randint(10, 100)
+            n = random.randint(minN, maxN)
             G = generate_planar_graph(n)
             if nx.is_connected(G) and G.number_of_edges() <= 1000:
                 break
@@ -71,17 +75,17 @@ def generate_graphs():
             G[u][v]['weight'] = random.uniform(0.1, 20.0)
         save_weighted_edges(G, base_dirs["planar"] / f"planar{i}.edgelist")
 
-    for i in range(1, 26):
+    for i in range(1, num):
         while True:
-            n = random.randint(20, 100)
+            n = random.randint(minN, maxN)
             G = nx.gnp_random_graph(n, p=0.1, directed=True)
             if nx.is_weakly_connected(G) and G.number_of_edges() <= 1000:
                 break
         save_unweighted_edges(G, base_dirs["unweighted"] / f"unweighted{i}.edgelist")
 
-    for i in range(1, 26):
+    for i in range(1, num):
         while True:
-            n = random.randint(20, 100)
+            n = random.randint(minN, maxN)
             G = nx.gnp_random_graph(n, p=0.1)
             if nx.is_connected(G) and G.number_of_edges() <= 1000:
                 break
@@ -94,3 +98,4 @@ def generate_graphs():
 
 if __name__ == '__main__':
     generate_graphs()
+

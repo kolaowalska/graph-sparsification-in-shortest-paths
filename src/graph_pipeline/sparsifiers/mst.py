@@ -11,7 +11,7 @@ class MSTSparsifier(Sparsifier):
     def sparsify(self, graph: GraphWrapper, rho: float = None) -> GraphWrapper:
         G = graph.G
         if G.is_directed():
-            G = symmetrize_graph(G, weight_attr='weight', mode='avg')
+            G = symmetrize_graph(G, weight_attr='weight', mode='sum')
 
         final_edges = [(u, v, data)
                        for u, v, data in nx.minimum_spanning_edges(G, data=True, weight='weight')]

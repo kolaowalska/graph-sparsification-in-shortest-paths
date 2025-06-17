@@ -18,7 +18,7 @@ class RandomSparsifier(Sparsifier):
         if self._seed is not None:
             random.seed(self._seed)
 
-        p = 1 - rho if rho is not None else self._rho
+        p = rho if rho is not None else self._rho
 
         for u, v, data in G.edges(data=True):
             if random.random() < p:

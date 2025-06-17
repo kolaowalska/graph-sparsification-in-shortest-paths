@@ -17,7 +17,7 @@ class TSpannerSparsifier(Sparsifier):
         G = graph.G
         directed = G.is_directed()
 
-        G = symmetrize_graph(G) if directed else G
+        G = symmetrize_graph(G, mode='sum') if directed else G
         H = nx.DiGraph() if directed else nx.Graph()
         H.add_nodes_from(G.nodes(data=True))
 

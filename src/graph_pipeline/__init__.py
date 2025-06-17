@@ -11,13 +11,21 @@ from experiments.visualization import generate_aggregated_plots as agrplot
 from experiments.visualization.utils.fuse_aggregated_data import fuse_aggregated_families
 from experiments.visualization.plots.plot_stretch_vs_rho import plot_stretch_vs_rho
 
+'''
+UNPROCESSED_DIR = Path("small_data/unprocessed")
+PROCESSED_DIR = Path("small_data/processed")
+RESULTS_DIR = Path("./small_results")
+IMAGES_DIR = RESULTS_DIR / "images"
+GENERATE_GRAPHS = False
+DRAW_EXAMPLES = True
+RHO = 0.2
+'''
 UNPROCESSED_DIR = Path("data/unprocessed")
 PROCESSED_DIR = Path("data/processed")
 RESULTS_DIR = Path("./results")
 IMAGES_DIR = RESULTS_DIR / "images"
 GENERATE_GRAPHS = True
-MULTI_RHO = False
-# RHO = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0] if MULTI_RHO else [0.2]
+DRAW_EXAMPLES = False
 RHO = 0.2
 
 
@@ -41,12 +49,6 @@ def draw_small_graphs(family: str):
 
 
 if __name__ == "__main__":
-    '''
-    input_unprocessed = Path("./data/unprocessed")
-    processed_dir = Path("./data/processed")
-    results_dir = Path("./results")
-    rho = 0.2  # desired prune rate, 0 <= rho <= 1
-    '''
     if GENERATE_GRAPHS:
         generate_graphs()
     families = None
@@ -75,9 +77,9 @@ if __name__ == "__main__":
         tqdm.write(f"running experiments for '{family}', output → {out_file}")
 
         plot.generate_plots(out_file, RESULTS_DIR / f"{family}" / f"plots")
-        # agrplot.generate_aggregated_plots(out_file_agr, RESULTS_DIR / f"aggregated_plots")
 
-        # draw_small_graphs(family)
+        if DRAW_EXAMPLES:
+            draw_small_graphs(family)
 
     global_agg_csv = RESULTS_DIR / "all_families_aggregated.csv"
     fuse_aggregated_families(results_dir=RESULTS_DIR, output_csv=global_agg_csv)

@@ -1,6 +1,8 @@
 from .base import Sparsifier
 from utils.core import GraphWrapper
+from utils.symmetrizer import symmetrize_graph
 from collections import defaultdict, deque
+import networkx as nx
 import random
 import math
 
@@ -27,30 +29,37 @@ class KOLSSparsifier(Sparsifier):
         assert 0 < rho <= 1
         keep_count = max(n - 1, int(math.floor(rho * m)))
 
-        nodes = list(G.nodes())
-        if len(nodes) < self._k:
-            raise ValueError(f"graph has only {len(nodes)} nodes but k = {self._k} BFS runs were requested")
-        start_vertices = random.sample(nodes, self._k)
+        if G.is_directed():
+            symG = symmetrize_graph(G, weight_attr='weight', mode='sum')
+            tree_undirected = nx.minimum_spanning_tree(symG, weight='weight')
 
-        first_seed = start_vertices[0]
-        visited = {first_seed}
-        queue = deque([first_seed])
-        T0 = set()
-
-        while queue:
-            u = queue.popleft()
-            neighbors = G.successors(u) if G.is_directed() else G.neighbors(u)
-            for v in neighbors:
-                if v not in visited:
-                    visited.add(v)
-                    e0 = (u, v) if G.is_directed() else tuple(sorted((u, v)))
-                    T0.add(e0)
-                    queue.append(v)
+            T0 = set()
+            for u, v in tree_undirected.edges():
+                if G.has_edge(u, v) and G.has_edge(v, u):
+                    w_uv = G[u][v].get('weight', 1)
+                    w_vu = G[v][u].get('weight', 1)
+                    if w_uv <= w_vu:
+                        T0.add((u, v))
+                    else:
+                        T0.add((v, u))
+                elif G.has_edge(u, v):
+                    T0.add((u, v))
+                else:
+                    T0.add((v, u))
+        else:
+            tree_undirected = nx.minimum_spanning_tree(G, weight='weight')
+            T0 = set(tuple(sorted((u, v))) for u, v in tree_undirected.edges())
 
         edge_freq = defaultdict(int)
+        nodes = list(G.nodes())
+        if len(nodes) < self._k:
+            raise ValueError(
+                f"graph has only {len(nodes)} nodes but k = {self._k} BFS runs were requested"
+            )
+        start_vertices = random.sample(nodes, self._k)
 
         for seed in start_vertices:
-            visited = set()
+            visited = set([seed])
             queue = deque([seed])
             while queue:
                 u = queue.popleft()
@@ -79,10 +88,6 @@ class KOLSSparsifier(Sparsifier):
 
         other_edges.sort(key=freq_score, reverse=True)
 
-        # freq_values = list(edge_freq.values())
-        # unique_freqs = set(freq_values)
-        # print(f"\n[DEBUG] unique frequencies: {unique_freqs} (total: {len(unique_freqs)})\n")
-
         final_edges = list(T0)
         needed = keep_count - len(final_edges)
         if needed > 0:
@@ -95,79 +100,5 @@ class KOLSSparsifier(Sparsifier):
             H_edges.append((u, v, {"weight": orig_w}))
 
         return GraphWrapper(G.nodes(data=True), H_edges, directed=G.is_directed())
-
-'''
-    def sparsify(self, graph: GraphWrapper, rho: float = None) -> GraphWrapper:
-        G = graph.G
-        n, m = G.number_of_nodes(), G.number_of_edges()
-
-        if self._seed is not None:
-            random.seed(self._seed)
-
-        rho = self._rho if rho is None else rho
-
-        keep_count = max(n - 1, int(math.floor(rho * m)))
-        nodes = list(G.nodes())
-
-        if len(nodes) < self._k:
-            raise ValueError(f"graph has only {len(nodes)} nodes but k={self._k} BFS runs requested")
-
-        s = random.sample(nodes, self._k)
-
-        if G.is_directed():
-            T0 = set()
-            visited = {s[0]}
-            queue = deque([s[0]])
-            while queue:
-                u = queue.popleft()
-                for v in G.successors(u):
-                    if v not in visited:
-                        visited.add(v)
-                        T0.add((u, v))
-                        queue.append(v)
-        else:
-            T0 = set(nx.minimum_spanning_edges(G, data=True))
-
-        seen = defaultdict(int)
-        for start in s:
-            visited = {start}
-            queue = deque([start])
-            while queue:
-                u = queue.popleft()
-                neighbors = G.successors(u) if G.is_directed() else G.neighbors(u)
-                for v in neighbors:
-                    e = (u, v) if G.is_directed() else tuple(sorted((u, v)))
-                    seen[e] += 1
-                    if v not in visited:
-                        visited.add(v)
-                        queue.append(v)
-
-        sparsified_edges = set(T0)
-
-        all_edges = list(G.edges()) if G.is_directed() else [tuple(sorted(e)) for e in G.edges()]
-        other_edges = [e for e in all_edges if e not in T0]
-        other_edges.sort(key=lambda e: seen.get(e, 0), reverse=True)
-
-        freq_values = list(seen.values())
-        unique_freqs = set(freq_values)
-        print(f"[DEBUG] unique frequencies: {unique_freqs} (total: {len(unique_freqs)})")
-
-        needed = keep_count - len(sparsified_edges)
-        if needed > 0:
-            sparsified_edges.update(other_edges[:needed])
-
-        H_edges = []
-        for e in sparsified_edges:
-            u, v = e
-            if not G.has_edge(u, v) and not G.is_directed():
-                u, v = v, u
-            if G.has_edge(u, v):
-                w = G[u][v].get("weight", 1)
-            else:
-                w = G[v][u].get("weight", 1)
-            H_edges.append((u, v, {"weight": w}))
-
-        return GraphWrapper(G.nodes(data=True), H_edges, directed=G.is_directed())
-'''
 
 
