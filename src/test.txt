@@ -1,1 +1,12 @@
-branch test
+// LEPIEJ SPRAWDZIC NIZ ZALOWAC
+git checkout main
+git pull
+git checkout -b wzorce
+
+// work, commit, push
+git push -u origin wzorce
+
+// wrap up
+git checkout main
+git merge wzorce
+git push
