@@ -2,6 +2,7 @@
 git checkout main
 git pull
 git checkout -b wzorce
+git merge main?
 
 // work, commit, push
 git push -u origin wzorce
