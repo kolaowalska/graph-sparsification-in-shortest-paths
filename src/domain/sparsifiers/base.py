@@ -50,7 +50,7 @@ class Sparsifier(ABC):
             *,
             rng: Optional[random.Random] = None,
     ) -> Graph:
-        """template method: validate params -> do work -> return new Graph"""
+        """template method: validate params -> do work -> return new Graph object"""
         rp = params if isinstance(params, RunParams) else RunParams(dict(params))
         self.validate_params(rp)
 
