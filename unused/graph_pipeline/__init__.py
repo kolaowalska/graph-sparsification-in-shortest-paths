@@ -22,7 +22,7 @@ RHO = 0.2
 '''
 UNPROCESSED_DIR = Path("data/unprocessed")
 PROCESSED_DIR = Path("data/processed")
-RESULTS_DIR = Path("./results")
+RESULTS_DIR = Path("results")
 IMAGES_DIR = RESULTS_DIR / "images"
 GENERATE_GRAPHS = True
 DRAW_EXAMPLES = False
