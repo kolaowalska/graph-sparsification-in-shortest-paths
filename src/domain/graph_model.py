@@ -1,4 +1,4 @@
-#from __future__ import annotations
+# from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -71,11 +71,11 @@ class Graph:
         self._meta: Dict[str, Any] = dict(metadata or {})
 
     @property
-    def n(self) -> int:
+    def node_count(self) -> int:
         return self._nx.number_of_nodes()
 
     @property
-    def m(self) -> int:
+    def edge_count(self) -> int:
         return self._nx.number_of_edges()
 
     def is_directed(self) -> bool:
@@ -135,7 +135,7 @@ class Graph:
 
     def __repr__(self) -> str:
         kind = "DiGraph" if self.directed else "Graph"
-        return f"<graph {self.id} {kind} n={self.n} m={self.m} name={self.name!r}>"
+        return f"<graph {self.id} {kind} n={self.node_count} m={self.edge_count} name={self.name!r}>"
         
 
 

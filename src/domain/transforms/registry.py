@@ -13,7 +13,7 @@ class TransformRegistry:
     @staticmethod
     def register(name: str) -> Callable[[Type[GraphTransform]], Type[GraphTransform]]:
         if not isinstance(name, str) or not name.strip():
-            raise ValueError("transform name must be a non-empty string")
+            raise ValueError("transform name must be a non-empty string!!")
         key = name.strip()
 
         def _decorator(cls: Type[GraphTransform]) -> Type[GraphTransform]:

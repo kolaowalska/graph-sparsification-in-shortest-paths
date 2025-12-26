@@ -13,7 +13,7 @@ class MetricRegistry:
     @staticmethod
     def register(name: str) -> Callable[[Type[Metric]], Type[Metric]]:
         if not isinstance(name, str) or not name.strip():
-            raise ValueError("metric name must be a non-empty string")
+            raise ValueError("metric name must be a non-empty string!!")
         key = name.strip()
 
         def _decorator(cls: Type[Metric]) -> Type[Metric]:
@@ -45,7 +45,7 @@ class MetricRegistry:
             cls = _METRICS[key]
         except KeyError as e:
             available = ", ".join(sorted(_METRICS.keys()))
-            raise KeyError(f"Unknown metric '{key}'. Available: [{available}]") from e
+            raise KeyError(f"unknown metric '{key}'. available: [{available}]") from e
         return cls()
 
     @staticmethod

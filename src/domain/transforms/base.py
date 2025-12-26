@@ -12,8 +12,8 @@ from ..sparsifiers.base import ParamSpec
 @dataclass(frozen=True)
 class TransformInfo:
     """
-    metadata for a GraphTransform plugin.
-    similar to SparsifierInfo, but for generic graph-to-graph operations
+    metadata for a GraphTransform plugin
+    similar to SparsifierInfo, but for generic graph-to-graph operations hopefully in the future
     """
     name: str
     version: str = "1.0.0"

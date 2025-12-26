@@ -8,6 +8,7 @@ from ..graph_model import Graph, RunParams
 from ..sparsifiers.base import ParamSpec
 from .registry import TransformRegistry
 
+# TODO: take care of this
 
 @TransformRegistry.register("simplify_parallel_edges")
 class SimplifyParallelEdges(GraphTransform):

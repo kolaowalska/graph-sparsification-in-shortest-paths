@@ -2,24 +2,21 @@ from __future__ import annotations
 
 import networkx as nx
 
-from ..domain.graph_model import Graph
-from ..domain.sparsifiers.registry import SparsifierRegistry
-from ..domain.metrics.registry import MetricRegistry
+from application.experiment_service import ExperimentService
+from infrastructure.graph_gateway import GraphSource
 
 
 def run_smoke() -> None:
-    SparsifierRegistry.discover()
-    MetricRegistry.discover()
+    svc = ExperimentService()
 
-    g = Graph.from_networkx(nx.path_graph(8), name="smoke_path8")
+    gkey = svc.import_graph(GraphSource(kind="memory", value=nx.path_graph(8), name="smoke_path8"))
+    print("graphs:", svc.list_graphs())
 
-    s = SparsifierRegistry.get("random")
-    out = s.run(g, {"p": 0.7, "seed": 123})
+    out_key = svc.run_sparsifier(gkey, "random", {"p": 0.7, "seed": 123})
+    print("graphs:", svc.list_graphs())
 
-    m = MetricRegistry.get("diameter")
-    res = m.compute(out, {})
-
+    results = svc.compute_metrics(out_key, ["diameter"])
     print("SMOKE OK")
-    print("in :", g)
-    print("out:", out)
-    print("metric summary:", dict(res.summary))
+    for r in results:
+        print(r.metric, r.summary)
+

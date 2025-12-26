@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, Iterable, Type
+from typing import Dict, Type, Callable, Iterable
 
 from .base import Sparsifier
-from ..common.plugin_discovery import discover_modules
+from domain.common.plugin_discovery import discover_modules
 
 _SPARSIFIERS: Dict[str, Type[Sparsifier]] = {}
 _DISCOVERED = False
@@ -13,7 +13,8 @@ class SparsifierRegistry:
     @staticmethod
     def register(name: str) -> Callable[[Type[Sparsifier]], Type[Sparsifier]]:
         if not isinstance(name, str) or not name.strip():
-            raise ValueError("sparsifier name must be a non-empty string")
+            raise ValueError("sparsifier name must be a non-empty string!!")
+
         key = name.strip()
 
         def _decorator(cls: Type[Sparsifier]) -> Type[Sparsifier]:
@@ -26,6 +27,10 @@ class SparsifierRegistry:
 
     @staticmethod
     def discover() -> None:
+        """
+        imports all modules under graph_pipeline.domain.sparsifiers
+        each plugin module should (haha but does it??) self-register using @SparsifierRegistry.register("name")
+        """
         global _DISCOVERED
         if _DISCOVERED:
             return
@@ -40,6 +45,7 @@ class SparsifierRegistry:
     @staticmethod
     def get(name: str) -> Sparsifier:
         SparsifierRegistry.ensure_discovered()
+
         key = name.strip()
         try:
             cls = _SPARSIFIERS[key]
@@ -57,6 +63,5 @@ class SparsifierRegistry:
     def items() -> Iterable[tuple[str, Type[Sparsifier]]]:
         SparsifierRegistry.ensure_discovered()
         return _SPARSIFIERS.items()
-
 
 register_sparsifier = SparsifierRegistry.register

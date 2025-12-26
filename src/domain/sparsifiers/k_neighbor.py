@@ -1,56 +1,51 @@
-from .base import Sparsifier, SparsifierInfo, ParamSpec
-from ..graph_model import Graph, RunParams
+from __future__ import annotations
+
 import random
 import networkx as nx
 
+from domain.graph_model import Graph, RunParams
+from domain.sparsifiers.base import Sparsifier, SparsifierInfo
+from domain.sparsifiers.registry import register_sparsifier
+
+
+@register_sparsifier("k_neighbor")
 class KNeighborSparsifier(Sparsifier):
     INFO = SparsifierInfo(
         name="k_neighbor",
-        version="1.0.0",
-        supports_directed=False,
-        supports_weighted=True,
-        deterministic=True,
-        param_schema={
-            "k": ParamSpec(type="int", required=True, min=1, description="keeps at most k neighbors per node"),
-            "weight_attr": ParamSpec(type="str", required=False, default="weight"),
-            "break_ties": ParamSpec(type="str", required=False, default="random",
-                                    choices=("random", "min_id", "max_id")),
-            "seed": ParamSpec(type="int", required=False, description="random seed for tie-breaking"),
-        },
+        version="0.1.0",
+        deterministic=True
     )
 
-    #TODO: verify seed
+    def validate_params(self, params: RunParams) -> None:
+        if "k" not in params:
+            raise ValueError("k_neighbor sparsifier requires param 'k'")
+        k = int(params["k"])
+        if k < 1:
+            raise ValueError("param 'k' must be >= 1")
 
     def sparsify(self, graph: Graph, params: RunParams, *, rng: random.Random) -> Graph:
-        G = graph.to_networkx(copy=True)
-        if G.is_directed():
-            raise ValueError("k_neighbor sparsifier expects an undirected graph")
+        k = int(params["k"])
+        weight_attr = params.get("weight_attr", "weight")
 
-        k = int(params.get("k", 1))
-        w = params.get("weight_attr", "weight")
-        tie = params.get("break_ties", "random")
+        G = graph.to_networkx(copy=True)
+        UG = G.to_undirected() if isinstance(G, nx.DiGraph) else G
 
         H = nx.Graph()
-        H.add_nodes_from(G.nodes(data=True))
+        H.add_nodes_from(UG.nodes(data=True))
 
-        for u in G.nodes():
-            neighbors = []
-            for v in G.neighbors(u):
-                data = G.get_edge_data(u, v, default={})
-                weight = data.get(w, 1.0)
-                neighbors.append((v, weight))
+        for u in UG.nodes():
+            candidates = []
+            for v in UG.neighbors(u):
+                data = UG.get_edge_data(u, v, default={})
+                w = float(data.get(weight_attr, 1.0))
+                candidates.append((v, w, data))
 
-            # if there's a tie between neighbors to keep, a custom strategy is chosen
-            if tie == "random":
-                rng.shuffle(neighbors)
-            elif tie == "min_id":
-                neighbors.sort(key=lambda x: x[0])
-            elif tie == "max_id":
-                neighbors.sort(key=lambda x: x[0], reverse=True)
+            # sort by weight descending
+            # TODO: deterministic tie-break by chosen strategy instead of node id repr?
+            candidates.sort(key=lambda t: (t[1], repr(t[0])), reverse=True)
 
-            neighbors.sort(key=lambda x: x[1], reverse=True)
-            for v, weight in neighbors[:k]:
+            for v, w, data in candidates[:k]:
                 if not H.has_edge(u, v):
-                    H.add_edge(u, v, **{w: weight})
+                    H.add_edge(u, v, **data)
 
         return Graph.from_networkx(H, name=f"{graph.name}_k{k}")

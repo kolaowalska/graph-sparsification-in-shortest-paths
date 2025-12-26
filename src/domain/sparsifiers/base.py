@@ -10,7 +10,7 @@ from ..graph_model import Graph, RunParams, OperationDescriptor
 
 @dataclass(frozen=True)
 class ParamSpec:
-    """lightweight specifications for validating params"""
+    """specs for validating params"""
     type: str
     required: bool
     default: Any = None
@@ -32,6 +32,8 @@ class SparsifierInfo:
     def descriptor(self) -> OperationDescriptor:
         return OperationDescriptor(kind="sparsify", name=self.name, version=self.version)
 
+
+# TEMPLATE METHOD & SEPARATED INTERFACE
 
 class Sparsifier(ABC):
     """separated interface for sparsification algorithms"""
