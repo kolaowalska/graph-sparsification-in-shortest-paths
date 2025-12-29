@@ -7,16 +7,23 @@ from infrastructure.graph_gateway import GraphSource
 
 
 def run_smoke() -> None:
-    svc = ExperimentService()
+    service = ExperimentService()
 
-    gkey = svc.import_graph(GraphSource(kind="memory", value=nx.path_graph(8), name="smoke_path8"))
-    print("graphs:", svc.list_graphs())
+    # gkey = svc.import_graph(GraphSource(kind="memory", value=nx.path_graph(8), name="smoke_path8"))
+    # print("graphs:", svc.list_graphs())
+    #
+    # out_key = svc.run_sparsifier(gkey, "random", {"p": 0.7, "seed": 123})
+    # print("graphs:", svc.list_graphs())
+    #
+    # results = svc.compute_metrics(out_key, ["diameter"])
+    # print("SMOKE OK")
+    # for r in results:
+    #     print(r.metric, r.summary)
 
-    out_key = svc.run_sparsifier(gkey, "random", {"p": 0.7, "seed": 123})
-    print("graphs:", svc.list_graphs())
+    source = GraphSource(kind="memory", value=None, name="mock-demo-graph")
+    service.import_graph(source)
 
-    results = svc.compute_metrics(out_key, ["diameter"])
-    print("SMOKE OK")
-    for r in results:
-        print(r.metric, r.summary)
+    report = service.run_experiment("mock-demo-graph", "identity_stub", ["diameter"])
 
+    print(f"nodes: {report.nodes_before} -> {report.nodes_after}")
+    print(f"mock data: {report.metadata['path_redundancy_score']}")

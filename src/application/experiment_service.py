@@ -8,6 +8,7 @@ from domain.sparsifiers.registry import SparsifierRegistry
 from domain.metrics.registry import MetricRegistry
 from domain.metrics.base import MetricResult
 from infrastructure.graph_gateway import GraphGateway, GraphSource
+from application.dto import ExperimentDTO
 
 
 # SERVICE LAYER
@@ -99,3 +100,37 @@ class ExperimentService:
             metric = MetricRegistry.get(name)
             results.append(metric.compute(g, p))
         return results
+
+# SERVICE LAYER ORCHESTRATION
+
+    def run_experiment(
+        self,
+        graph_key: str,
+        sparsifier_name: str,
+        metric_names: list[str],
+    ) -> ExperimentDTO:
+        """
+        uses the DTO to return a complete snapshot of experiment results
+        """
+
+        G = self.get_graph(graph_key)
+        n_pre, m_pre = G.node_count, G.edge_count
+
+        key_new = self.run_sparsifier(graph_key, sparsifier_name, {})
+        H = self.get_graph(key_new)
+
+        metric_results = self.compute_metrics(key_new, metric_names)
+
+        return ExperimentDTO(
+            graph_name=graph_key,
+            nodes_before=n_pre,
+            edges_before=m_pre,
+            nodes_after=H.node_count,
+            edges_after=H.edge_count,
+            sparsifier_name=sparsifier_name,
+            metric_results=metric_results,
+            metadata={
+                "path_redundancy_score": 0.0, "is_coarsened": False
+            }
+        )
+
