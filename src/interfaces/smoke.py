@@ -4,10 +4,12 @@ import networkx as nx
 
 from application.experiment_service import ExperimentService
 from infrastructure.graph_gateway import GraphSource
+from src.infrastructure.persistence.stubs import InMemoryGraphRepository
 
 
 def run_smoke() -> None:
-    service = ExperimentService()
+    repo = InMemoryGraphRepository()
+    service = ExperimentService(graph_repo=repo)
 
     source = GraphSource(kind="memory", value=None, name="mock-demo-graph")
     service.import_graph(source)

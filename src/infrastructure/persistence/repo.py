@@ -1,8 +1,32 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from typing import List, Optional
+
+from src.domain.graph_model import Graph
+from src.domain.experiment import Experiment, RunID
+
+
+class GraphRepository(ABC):
+    """
+    interface for storing and retrieving Graph domain objects
+    """
+    @abstractmethod
+    def save(self, graph: Graph) -> None:
+        pass
+
+    @abstractmethod
+    def get(self, name: str) -> Optional[Graph]:
+        pass
+
+    @abstractmethod
+    def list_names(self) -> List[str]:
+        pass
 
 
 class ExperimentRepository(ABC):
+    """
+    interface for storing and retrieving Experiment entities
+    """
     @abstractmethod
     def save(self, experiment: Experiment):
         pass
