@@ -3,12 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from domain.graph_model import Graph, RunParams
-from domain.sparsifiers.registry import SparsifierRegistry
-from domain.metrics.registry import MetricRegistry
-from domain.metrics.base import MetricResult
-from infrastructure.graph_gateway import GraphGateway, GraphSource
-from application.dto import ExperimentDTO
+from src.domain.graph_model import Graph, RunParams
+from src.domain.sparsifiers.registry import SparsifierRegistry
+from src.domain.metrics.registry import MetricRegistry
+from src.domain.metrics.base import MetricResult
+from src.infrastructure.graph_gateway import GraphGateway, GraphSource
+from src.infrastructure.persistence.repo import GraphRepository
+from src.application.dto import ExperimentDTO
 
 
 # SERVICE LAYER
