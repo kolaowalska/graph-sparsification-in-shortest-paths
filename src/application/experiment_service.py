@@ -11,41 +11,42 @@ from src.infrastructure.graph_gateway import GraphGateway, GraphSource
 from src.infrastructure.persistence.repo import GraphRepository
 from src.application.dto import ExperimentDTO
 
-
 # SERVICE LAYER
 
-@dataclass
 class ExperimentService:
-    gateway: GraphGateway = field(default_factory=GraphGateway)
-
-    _graphs: dict[str, Graph] = field(default_factory=dict)
+    def __init__(self, graph_repo: GraphRepository, gateway: Optional[GraphGateway] = None):
+        self.graph_repo = graph_repo
+        self.gateway = gateway or GraphGateway()
 
     def import_graph(self, source: GraphSource) -> str:
         """
         imports a graph into the service store and returns an internal handle
         """
         graph = self.gateway.load(source)
-
         key = graph.name
-        if key in self._graphs:
+
+        if self.graph_repo.get(key) is not None:
             i = 2
-            while f"{key}_{i}" in self._graphs:
+            while self.graph_repo.get(f"{key}_{i}") is not None:
                 i += 1
             key = f"{key}_{i}"
-            graph = Graph.from_networkx(graph.to_networkx(copy=True), name=key, metadata=dict(graph.metadata))
-
-        self._graphs[key] = graph
+            graph = Graph.from_networkx(
+                graph.to_networkx(copy=True),
+                name=key,
+                metadata=dict(graph.metadata)
+            )
+        self.graph_repo.save(graph)
         return key
 
     def get_graph(self, graph_key: str) -> Graph:
-        try:
-            return self._graphs[graph_key]
-        except KeyError as e:
-            available = ", ".join(sorted(self._graphs.keys()))
-            raise KeyError(f"unknown graph '{graph_key}'. available: [{available}]") from e
+        graph = self.graph_repo.get(graph_key)
+        if graph is None:
+            available = ", ".join(self.graph_repo.list_names())
+            raise KeyError(f"graph not found: {graph_key}, available graphs: [{available}]")
+        return graph
 
     def list_graphs(self) -> list[str]:
-        return sorted(self._graphs.keys())
+        return self.graph_repo.list_names()
 
     def run_sparsifier(
         self,
@@ -65,21 +66,25 @@ class ExperimentService:
 
         rp: RunParams
         if isinstance(params, dict):
-            rp = params
+            rp = RunParams(params)
         else:
             rp = params
 
         out = sparsifier.run(g, rp)
-
         new_key = output_name or out.name
-        if new_key in self._graphs:
+
+        # collision check
+        if self.graph_repo.get(new_key) is not None:
             i = 2
-            while f"{new_key}_{i}" in self._graphs:
+            while self.graph_repo.get(f"{new_key}_{i}") is not None:
                 i += 1
             new_key = f"{new_key}_{i}"
-            out = Graph.from_networkx(out.to_networkx(copy=True), name=new_key, metadata=dict(out.metadata))
-
-        self._graphs[new_key] = out
+            out = Graph.from_networkx(
+                out.to_networkx(copy=True),
+                name=new_key,
+                metadata=dict(out.metadata)
+            )
+        self.graph_repo.save(out)
         return new_key
 
     def compute_metrics(
@@ -94,7 +99,7 @@ class ExperimentService:
         MetricRegistry.discover()
 
         g = self.get_graph(graph_key)
-        p = params or {}
+        p = RunParams(params or {})
 
         results: list[MetricResult] = []
         for name in metric_names:
@@ -113,7 +118,6 @@ class ExperimentService:
         """
         uses the DTO to return a complete snapshot of experiment results
         """
-
         G = self.get_graph(graph_key)
         n_pre, m_pre = G.node_count, G.edge_count
 

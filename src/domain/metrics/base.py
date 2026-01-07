@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any
 
-from domain.graph_model import Graph, RunParams
+from src.domain.graph_model import Graph, RunParams
 
 
 @dataclass(frozen=True)

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Callable, Dict, Type
 
 from .base import Metric
-from ..common.plugin_discovery import discover_modules
+from src.domain.common.plugin_discovery import discover_modules
 
 _METRICS: Dict[str, Type[Metric]] = {}
 _DISCOVERED = False
@@ -29,7 +29,7 @@ class MetricRegistry:
         global _DISCOVERED
         if _DISCOVERED:
             return
-        discover_modules("domain.metrics")
+        discover_modules("src.domain.metrics")
         _DISCOVERED = True
 
     @staticmethod

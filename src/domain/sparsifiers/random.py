@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import random
 
-from domain.graph_model import Graph, RunParams
-from domain.sparsifiers.base import Sparsifier, SparsifierInfo
-from domain.sparsifiers.registry import register_sparsifier
+from src.domain.graph_model import Graph, RunParams
+from src.domain.sparsifiers.base import Sparsifier, SparsifierInfo
+from src.domain.sparsifiers.registry import register_sparsifier
 
 
 @register_sparsifier("random")

@@ -1,7 +1,6 @@
 # from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from typing import Any, Mapping, MutableMapping, Optional, Dict, Iterable, Tuple, NewType
 import uuid
 import networkx as nx
@@ -49,7 +48,7 @@ class OperationDescriptor:
 
 class Graph:
     __slots__ = (
-        "_nx", "id", "name", "directed", "weighted", "source", "_meta"
+        "_nx", "id", "name", "directed", "weighted", "source", "metadata"
     )
 
     def __init__(
@@ -68,7 +67,7 @@ class Graph:
         self.directed: bool = nx_graph.is_directed()
         self.weighted: bool = any("weight" in d for _, _, d in nx_graph.edges(data=True) or weight_attr != "weight")
         self.source: Optional[str] = source
-        self._meta: Dict[str, Any] = dict(metadata or {})
+        self.metadata: Dict[str, Any] = dict(metadata or {})
 
     @property
     def node_count(self) -> int:
@@ -87,7 +86,7 @@ class Graph:
     # ============ metadata ============
 
     def meta(self) -> Mapping[str, Any]:
-        return self._meta
+        return self.metadata
 
     # def with_meta(self, **pairs: Any) -> "Graph":
 
@@ -108,7 +107,7 @@ class Graph:
             id=new_graph_id(),
             name=self.name + "_copy",
             source=self.source,
-            metadata=self._meta.copy(),
+            metadata=self.metadata.copy(),
         )
 
     def nodes(self) -> Iterable[Any]:

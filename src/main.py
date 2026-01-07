@@ -1,26 +1,25 @@
-from __future__ import annotations
-
+import sys
 import argparse
+from src.interfaces.smoke import run_smoke
 
 
-def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser()
-    p.add_argument("--smoke", action="store_true")
-    return p
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
 
+    parser = argparse.ArgumentParser(description="graph sparsification pipeline")
+    parser.add_argument("--smoke", action="store_true", help="run a quick smoke test")
 
-def main(argv: list[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    parsed_args = parser.parse_args(args)
 
-    if args.smoke:
-        from interfaces.smoke import run_smoke
+    if parsed_args.smoke:
+        print("running smoke test...")
         run_smoke()
         return 0
 
-    # TODO: real cli
-    from interfaces.cli import run_cli
-    return run_cli(argv)
+    print("no arguments provided, try --smoke")
+    return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())

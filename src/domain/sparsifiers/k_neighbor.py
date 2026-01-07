@@ -3,9 +3,9 @@ from __future__ import annotations
 import random
 import networkx as nx
 
-from domain.graph_model import Graph, RunParams
-from domain.sparsifiers.base import Sparsifier, SparsifierInfo
-from domain.sparsifiers.registry import register_sparsifier
+from src.domain.graph_model import Graph, RunParams
+from src.domain.sparsifiers.base import Sparsifier, SparsifierInfo
+from src.domain.sparsifiers.registry import register_sparsifier
 
 
 @register_sparsifier("k_neighbor")

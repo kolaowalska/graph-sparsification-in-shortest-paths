@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Dict, Type, Callable, Iterable
 
 from .base import Sparsifier
-from domain.common.plugin_discovery import discover_modules
+from src.domain.common.plugin_discovery import discover_modules
 
 _SPARSIFIERS: Dict[str, Type[Sparsifier]] = {}
 _DISCOVERED = False
@@ -34,7 +34,7 @@ class SparsifierRegistry:
         global _DISCOVERED
         if _DISCOVERED:
             return
-        discover_modules("domain.sparsifiers")
+        discover_modules("src.domain.sparsifiers")
         _DISCOVERED = True
 
     @staticmethod

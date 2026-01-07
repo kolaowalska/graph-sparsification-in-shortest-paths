@@ -9,7 +9,7 @@ class InMemoryGraphRepository(GraphRepository):
         self._storage: Dict[str, Graph] = {}
 
     def save(self, graph: Graph) -> None:
-        self._storage[graph.id] = graph
+        self._storage[graph.name] = graph
 
     def get(self, name: str) -> Optional[Graph]:
         return self._storage.get(name)

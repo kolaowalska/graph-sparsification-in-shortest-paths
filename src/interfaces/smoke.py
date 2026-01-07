@@ -1,20 +1,34 @@
 from __future__ import annotations
+import os
 
-import networkx as nx
-
-from application.experiment_service import ExperimentService
-from infrastructure.graph_gateway import GraphSource
+from src.application.experiment_service import ExperimentService
+from src.infrastructure.graph_gateway import GraphSource
 from src.infrastructure.persistence.stubs import InMemoryGraphRepository
 
 
 def run_smoke() -> None:
-    repo = InMemoryGraphRepository()
-    service = ExperimentService(graph_repo=repo)
+    repo = InMemoryGraphRepository() # fake database for now
+    service = ExperimentService(graph_repo=repo) # inject into service
 
-    source = GraphSource(kind="memory", value=None, name="mock-demo-graph")
-    service.import_graph(source)
+    # defining source
+    data_path = "src/data/toy.edgelist"
 
-    report = service.run_experiment("mock-demo-graph", "identity_stub", ["diameter"])
+    if not os.path.exists(data_path):
+        print(f"WARNING: {data_path} does not exist, using memory fallback")
+        source = GraphSource(kind="memory", value=None, name="mock-demo-graph")
+    else:
+        source = GraphSource(kind="file", value=data_path, name="toy-graph")
 
-    print(f"nodes: {report.nodes_before} -> {report.nodes_after}")
-    print(f"mock data: {report.metadata['path_redundancy_score']}")
+    # import
+    graph_key = service.import_graph(source)
+    print(f"graph imported successfully with key {graph_key}")
+
+    # running the experiment
+    report = service.run_experiment(graph_key, "identity_stub", ["diameter"])
+
+    print("-" * 30)
+    print("SMOKE TEST SUCCESS")
+    print(f"target: {report.graph_name}")
+    print(f"reduction: {report.nodes_before} -> {report.nodes_after} nodes")
+    print(f"results: {report.metric_results}")
+    print("-" * 30)

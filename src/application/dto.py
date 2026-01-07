@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
-from domain.metrics.base import MetricResult
+from src.domain.metrics.base import MetricResult
 
 
 # DATA TRANSFER OBJECT

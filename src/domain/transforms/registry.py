@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Callable, Dict, Type
 
 from .base import GraphTransform
-from ..common.plugin_discovery import discover_modules
+from src.domain.common.plugin_discovery import discover_modules
 
 _TRANSFORMS: Dict[str, Type[GraphTransform]] = {}
 _DISCOVERED = False
@@ -29,7 +29,7 @@ class TransformRegistry:
         global _DISCOVERED
         if _DISCOVERED:
             return
-        discover_modules("domain.transforms")
+        discover_modules("srcdomain.transforms")
         _DISCOVERED = True
 
     @staticmethod
