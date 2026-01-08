@@ -5,23 +5,23 @@ import time
 import logging
 from typing import Any, Dict
 
-from src.domain.graph_model import Graph, RunParams
+from src.domain.graph_model import Graph, RunParams, OperationDescriptor
 
 
-# class TransformInfo:
-#     """
-#     metadata for a GraphTransform plugin
-#     similar to SparsifierInfo, but for generic graph-to-graph operations hopefully in the future
-#     """
-#     name: str
-#     version: str = "1.0.0"
-#     supports_directed: bool = True
-#     supports_weighted: bool = True
-#     deterministic: bool = False
-#     param_schema: Mapping[str, ParamSpec] = field(default_factory=dict)
-#
-#     def descriptor(self) -> OperationDescriptor:
-#         return OperationDescriptor(kind="transform", name=self.name, version=self.version)
+class TransformInfo:
+    """
+    metadata for a GraphTransform plugin
+    similar to SparsifierInfo, but for generic graph-to-graph operations hopefully in the future
+    """
+    name: str
+    version: str = "1.0.0"
+    supports_directed: bool = True
+    supports_weighted: bool = True
+    deterministic: bool = False
+    param_schema: Mapping[str, ParamSpec] = field(default_factory=dict)
+
+    def descriptor(self) -> OperationDescriptor:
+        return OperationDescriptor(kind="transform", name=self.name, version=self.version)
 
 
 class GraphTransform(ABC):

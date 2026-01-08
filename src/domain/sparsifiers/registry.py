@@ -45,7 +45,6 @@ class SparsifierRegistry:
     @staticmethod
     def get(name: str) -> Sparsifier:
         SparsifierRegistry.ensure_discovered()
-
         key = name.strip()
         try:
             cls = _SPARSIFIERS[key]

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, Type
+from typing import Callable, Dict, Type, Iterable
 
 from .base import GraphTransform
 from src.domain.common.plugin_discovery import discover_modules
@@ -26,10 +26,14 @@ class TransformRegistry:
 
     @staticmethod
     def discover() -> None:
+        """
+        imports all modules under graph_pipeline.domain.transforms
+        each plugin module should (haha but does it??) self-register using @TransformRegistry.register("name")
+        """
         global _DISCOVERED
         if _DISCOVERED:
             return
-        discover_modules("srcdomain.transforms")
+        discover_modules("src.domain.transforms")
         _DISCOVERED = True
 
     @staticmethod
@@ -52,6 +56,11 @@ class TransformRegistry:
     def list() -> list[str]:
         TransformRegistry.ensure_discovered()
         return sorted(_TRANSFORMS.keys())
+
+    @staticmethod
+    def items() -> Iterable[tuple[str, Type[GraphTransform]]]:
+        TransformRegistry.ensure_discovered()
+        return _TRANSFORMS.items()
 
 
 register_transform = TransformRegistry.register
