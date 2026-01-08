@@ -11,7 +11,7 @@ from src.domain.graph_model import Graph
 @dataclass
 class GraphSource:
     """
-    DTO specifying where to find a graph
+    [DTO] specifying where to find a graph
     """
     kind: str
     name: str
@@ -21,7 +21,7 @@ class GraphSource:
 
 class GraphGateway:
     """
-    gateway to external graph data
+    [GATEWAY] to external graph data
     """
 
     def load(self, source: GraphSource) -> Graph:

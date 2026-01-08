@@ -1,7 +1,7 @@
 # from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Mapping, MutableMapping, Optional, Dict, Iterable, Tuple, NewType
+from typing import Any, Mapping, MutableMapping, Optional, Dict, Iterable, Tuple, NewType, Callable
 import uuid
 import networkx as nx
 
@@ -31,76 +31,93 @@ class RunParams:
         return RunParams(merged)
 
 @dataclass(frozen=True)
-class MetricResult:
-    """results returned by Metric.compute()"""
-    summary: Mapping[str, float | int | str] = field(default_factory=dict)
-    artifacts: Mapping[str, ArtifactHandle] = field(default_factory=dict)
-
-@dataclass(frozen=True)
 class OperationDescriptor:
-    """which algorithm produced an output (algorithm name & version)"""
+    """which algorithm produced the output"""
     kind: str
     name: str
     version: str = "1.0.0"
-
+    params: Mapping[str, Any] = field(default_factory=dict)
 
 # DOMAIN MODEL
 
 class Graph:
     __slots__ = (
-        "_nx", "id", "name", "directed", "weighted", "source", "metadata"
+        "_nx", "_loader", "id", "name", "directed", "weighted", "source", "metadata"
     )
 
     def __init__(
         self,
-        nx_graph: nx.Graph | nx.DiGraph,
-        *,
-        id: Optional[GraphID] = None,
+        nx_graph: Optional[nx.Graph | nx.DiGraph],
+        id: GraphID,
         name: Optional[str] = None,
         source: Optional[str] = None,
         metadata: Optional[MutableMapping[str, Any]] = None,
         weight_attr: str = "weight",
-    ) -> None:
+        loader: Optional[Callable[[], nx.Graph]] = None
+    ):
         self._nx = nx_graph
+        self._loader = loader
         self.id: GraphID = id or new_graph_id()
         self.name: str = name or f"graph-{self.id}"
-        self.directed: bool = nx_graph.is_directed()
-        self.weighted: bool = any("weight" in d for _, _, d in nx_graph.edges(data=True) or weight_attr != "weight")
         self.source: Optional[str] = source
         self.metadata: Dict[str, Any] = dict(metadata or {})
 
+        if self._nx:
+            self.directed = self._nx.is_directed()
+            # self.weighted = any("weight" in d for _, _, d in nx_graph.edges(data=True) or weight_attr != "weight")
+        elif loader:
+            self.directed = None # unknown until loaded
+        else:
+            self.directed = False
+
+    def to_networkx(self, copy: bool = True) -> nx.Graph:
+        """
+        [LAZY LOAD] triggers loading from db if _nx is None
+        -> copy=True returns a clone. slow (O(V + E)), consumes double RAM, but safe for mutation
+        -> copy=False returns a reference to the internal object. fast (O(1)), zero extra ram. use to read properties
+        """
+        if self._nx is None and self._loader is not None:
+            print(f"[LAZY LOAD] loading absolutely massive graph data for '{self.name}', hold on tight...")
+            self._nx = self._loader()
+            self.directed = self._nx.is_directed()
+        if self._nx is None:
+            return nx.Graph()
+        return self._nx.copy() if copy else self._nx
+
     @property
     def node_count(self) -> int:
-        return self._nx.number_of_nodes()
+        # return self._nx.number_of_nodes()
+        return self.to_networkx(copy=False).number_of_nodes()
 
     @property
     def edge_count(self) -> int:
-        return self._nx.number_of_edges()
+        # return self._nx.number_of_edges()
+        return self.to_networkx(copy=False).number_of_edges()
 
     def is_directed(self) -> bool:
-        return self.directed
+        # return self.directed
+        return self.to_networkx(copy=False).is_directed()
 
-    def is_weighted(self) -> bool:
-        return self.weighted
+    # def is_weighted(self) -> bool:
+    #     return self.weighted
 
     # ============ metadata ============
 
-    def meta(self) -> Mapping[str, Any]:
-        return self.metadata
+    # def meta(self) -> Mapping[str, Any]:
+    #     return self.metadata
 
     # def with_meta(self, **pairs: Any) -> "Graph":
 
-    def to_networkx(self, copy: bool = False) -> nx.Graph | nx.DiGraph:
-        """use with caution; prefer Graph methods in domain code and set copy=True for mutations"""
-        return self._nx.copy() if copy else self._nx
+    # def to_networkx(self, copy: bool = False) -> nx.Graph | nx.DiGraph:
+    #     """use with caution; prefer Graph methods in domain code and set copy=True for mutations"""
+    #     return self._nx.copy() if copy else self._nx
 
-    def copy(self, with_nodes_attrs: bool = True, with_edge_attrs: bool = True) -> "Graph":
-        nx_copy = self._nx.__class__()
-        nx_copy.add_nodes_from(
-            self._nx.nodes(data=True) if with_nodes_attrs else self._nx.nodes()
-        )
+    def copy(self, with_edge_attrs: bool = True) -> "Graph":
+        G = self.to_networkx(copy=True)
+        nx_copy = G.__class__()
+        nx_copy.add_nodes_from(G.nodes(data=True))
         nx_copy.add_edges_from(
-            self._nx.edges(data=True) if with_edge_attrs else self._nx.edges()
+            G.edges(data=True) if with_edge_attrs else G.edges()
         )
         return Graph(
             nx_copy,
@@ -111,30 +128,47 @@ class Graph:
         )
 
     def nodes(self) -> Iterable[Any]:
-        return self._nx.nodes()
+        return self.to_networkx(copy=False).nodes()
 
     def edges(self, data: bool = False) -> Iterable[Tuple[Any, Any] | Tuple[Any, Any, Mapping[str, Any]]]:
-        return self._nx.edges(data) if data else self._nx.edges() # ??
+        return self.to_networkx(copy=False).edges(data)
 
     def degree(self, v: Any) -> float:
-        return self._nx.degree[v]
+        return self.to_networkx(copy=False).degree[v]
 
     def edge_weight(self, u: Any, v: Any, default: float = 1.0, weight_attr: str = "weight") -> float:
-        data = self._nx.get_edge_data(u, v, default=None)
+        G = self.to_networkx(copy=False)
+        data = G.get_edge_data(u, v, default=None)
         if not data:
             raise KeyError(f"edge ({u}, {v}) not found :(")
         if isinstance(data, dict):
             return float(data.get(weight_attr, default))
         return float(min(d.get(weight_attr, default) for d in data.values()))
 
+    # FACTORIES
+
     @staticmethod
     def from_networkx(g: nx.Graph | nx.DiGraph, *, name: Optional[str] = None, source: Optional[str] = None,
                       metadata: Optional[Mapping[str, Any]] = None) -> "Graph":
-        return Graph(g, name=name, source=source, metadata=dict(metadata or {}))
+        final_name = name or str(uuid.uuid4())
+        return Graph(
+            nx_graph=g,
+            id=new_graph_id(),
+            name=final_name,
+            source=source,
+            metadata=metadata or {}
+        )
 
-    def __repr__(self) -> str:
-        kind = "DiGraph" if self.directed else "Graph"
-        return f"<graph {self.id} {kind} n={self.node_count} m={self.edge_count} name={self.name!r}>"
-        
+    @staticmethod
+    def from_loader(name: str, loader_f: Callable[[], nx.Graph], metadata: dict = None) -> "Graph":
+        """factory for [LAZY LOAD] (virtual proxy)"""
+        return Graph(
+            nx_graph=None,
+            id=new_graph_id(),
+            name=name,
+            source="lazy_loader",
+            metadata=metadata or {},
+            loader=loader_f
+        )
 
 

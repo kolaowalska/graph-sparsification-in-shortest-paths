@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 import networkx as nx
 import pytest
 
@@ -8,24 +9,36 @@ from src.infrastructure.persistence.stubs import InMemoryGraphRepository, InMemo
 
 
 def test_pipeline():
-
+    # 1. setup
     graph_repo = InMemoryGraphRepository()
     exp_repo = InMemoryExperimentRepository()
     svc = ExperimentService(graph_repo, exp_repo)
 
+    # 2. importing data
     nx_g = nx.path_graph(10)
-
     gkey = svc.import_graph(GraphSource(kind="memory", value=nx_g, name="test_graph"))
 
+    # 3. running the experiment
     dto = svc.run_experiment(gkey, "identity_stub", ["diameter"])
 
-    # assert "execution_time" in dto.metadata
-    # assert dto.metadata["algorithm"] == "IdentitySparsifier"
-    # print(f"Transform took {dto.metadata['execution_time']}s")
-    #
-    # saved_graphs = graph_repo.list_names()
-    #
-    # assert len(saved_graphs) >= 1
-    # assert any("identity" in name for name in saved_graphs)
-    #
-    # assert len(exp_repo._storage) == 1
+    # 4. [LAYER SUPERTYPE] verification (metadata injection)
+    assert "execution_time" in dto.metadata
+    assert dto.metadata["algorithm"] == "IdentitySparsifier"
+    print(f"graph transform took {dto.metadata['execution_time']:.5f}s")
+
+    # 5. [UNIT OF WORK] verification (persistence)
+    saved_graphs = graph_repo.list_names()
+    assert len(saved_graphs) >= 2, f"expected original + result graphs, got: {saved_graphs}"
+    assert any("identity" in name for name in saved_graphs)
+    assert len(exp_repo._storage) == 1
+
+    # 6. verifying metric results
+    assert len(dto.metric_results) == 1
+    result = dto.metric_results[0]
+
+    assert result.metric == "diameter"
+    assert "diameter" in result.summary
+
+    val = result.summary["diameter"]
+    assert isinstance(val, (int, float))
+    assert val == 9

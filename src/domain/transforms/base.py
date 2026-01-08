@@ -5,7 +5,7 @@ import time
 import logging
 from typing import Any, Dict
 
-from src.domain.graph_model import Graph, RunParams, OperationDescriptor
+from src.domain.graph_model import Graph, RunParams
 
 
 # class TransformInfo:
@@ -35,7 +35,7 @@ class GraphTransform(ABC):
         if graph.node_count == 0:
             logging.warning(f"[{self.__class__.__name__}] no nodes found")
 
-        print(f"[{self.__class__.__name__}] starting transformation on '{graph.name}")
+        print(f"\n[{self.__class__.__name__}] starting transformation on '{graph.name}'")
         start_time = time.time()
 
         result_graph = self.run(graph, params)
@@ -43,6 +43,7 @@ class GraphTransform(ABC):
 
         result_graph.metadata['algorithm'] = self.__class__.__name__
         result_graph.metadata['execution_time'] = duration
+        result_graph.metadata['parent_graph'] = graph.name
 
         print(f"[{self.__class__.__name__}] finished transformation on '{graph.name}' in {duration:.5f}s")
         return result_graph

@@ -5,7 +5,8 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional, List, Dict
 
-from src.domain.graph_model import RunID, RunParams, MetricResult, new_run_id
+from src.domain.graph_model import RunID, RunParams, new_run_id
+from src.domain.metrics.base import MetricResult
 
 class ExperimentStatus(str, Enum):
     PENDING = "pending"

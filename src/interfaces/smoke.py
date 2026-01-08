@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+import networkx as nx
 
 from src.application.experiment_service import ExperimentService
 from src.infrastructure.graph_gateway import GraphSource
@@ -7,29 +8,45 @@ from src.infrastructure.persistence.stubs import InMemoryGraphRepository, InMemo
 
 
 def run_smoke() -> None:
+    print("\n--- SMOKE TEST ---")
+
+    # 1. setup
     graph_repo = InMemoryGraphRepository()
     exp_repo = InMemoryExperimentRepository()
-    service = ExperimentService(graph_repo=graph_repo, experiment_repo=exp_repo) # inject into service
+    service = ExperimentService(graph_repo=graph_repo, experiment_repo=exp_repo)
 
-    # defining source
+    # 2. loading data (file or fallback)
     data_path = "src/data/toy.edgelist"
-
-    if not os.path.exists(data_path):
-        print(f"WARNING: {data_path} does not exist, using memory fallback")
-        source = GraphSource(kind="memory", value=None, name="mock-demo-graph")
-    else:
+    if os.path.exists(data_path):
+        print(f"[smoke] loading from file: {data_path}")
         source = GraphSource(kind="file", value=data_path, name="toy-graph")
+    else:
+        print("[smoke] file not found, using in-memory fallback")
+        g = nx.erdos_renyi_graph(20, 0.3, seed=42)
+        source = GraphSource(kind="memory", value=g, name="mock-demo-graph")
 
-    # import
     graph_key = service.import_graph(source)
-    print(f"graph imported successfully with key {graph_key}")
+    print(f"[smoke] graph imported successfully: '{graph_key}'")
 
-    # running the experiment
-    report = service.run_experiment(graph_key, "identity_stub", ["diameter"])
+    try:
+        # 3. running the actual experiment
+        report = service.run_experiment(graph_key, "identity_stub", ["diameter"])
 
-    print("-" * 30)
-    print("SMOKE TEST SUCCESS")
-    print(f"target: {report.graph_name}")
-    print(f"reduction: {report.nodes_before} -> {report.nodes_after} nodes")
-    print(f"results: {report.metric_results}")
-    print("-" * 30)
+        print("\n--- SMOKE TEST RESULTS ---")
+        print(f"graph name: {report.graph_name}")
+        print(f"sparsifier: {report.sparsifier_name}")
+        print(f"reduction: {report.nodes_before} -> {report.nodes_after} nodes")
+
+        # 4. handling metrics
+        print("metrics:")
+        for m in report.metric_results:
+            # TODO: format the summary dict for display
+            summary_str = ", ".join([f"{k} = {v}" for k, v in m.summary.items()])
+            print(f"  - {m.metric}: {summary_str}")
+
+        print("--- SUCCESS ---")
+
+    except Exception as e:
+        print(f"\n--- SMOKE TEST FAILED ---")
+        print(f"error: {e}")
+        raise e

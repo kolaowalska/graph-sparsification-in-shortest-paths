@@ -12,8 +12,8 @@ from src.infrastructure.graph_gateway import GraphGateway, GraphSource
 from src.infrastructure.persistence.repo import GraphRepository, ExperimentRepository
 from src.infrastructure.persistence.unit_of_work import UnitOfWork
 from src.infrastructure.persistence.stubs import InMemoryExperimentRepository
-
 from src.application.dto import ExperimentDTO
+
 
 class ExperimentService:
     def __init__(
@@ -33,16 +33,16 @@ class ExperimentService:
         key = graph.name
 
         # TODO: collision logic
-        # if self.graph_repo.get(key) is not None:
-        #     i = 2
-        #     while self.graph_repo.get(f"{key}_{i}") is not None:
-        #         i += 1
-        #     key = f"{key}_{i}"
-        #     graph = Graph.from_networkx(
-        #         graph.to_networkx(copy=True),
-        #         name=key,
-        #         metadata=dict(graph.metadata)
-        #     )
+        if self.graph_repo.get(key) is not None:
+            i = 2
+            while self.graph_repo.get(f"{key}_{i}") is not None:
+                i += 1
+            key = f"{key}_{i}"
+            graph = Graph.from_networkx(
+                graph.to_networkx(copy=True),
+                name=key,
+                metadata=dict(graph.metadata)
+            )
         self.graph_repo.save(graph)
         return key
 
