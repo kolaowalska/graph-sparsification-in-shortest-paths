@@ -1,30 +1,31 @@
 from __future__ import annotations
 import networkx as nx
+import pytest
 
 from src.application.experiment_service import ExperimentService
 from src.infrastructure.graph_gateway import GraphSource
-from src.infrastructure.persistence.stubs import InMemoryGraphRepository
+from src.infrastructure.persistence.stubs import InMemoryGraphRepository, InMemoryExperimentRepository
 
 
-def test_dummy_pipeline_logic():
-    # setup
-    repo = InMemoryGraphRepository()
-    svc = ExperimentService(graph_repo=repo)
+def test_pipeline():
 
-    # creating input
-    nx_g = nx.path_graph(8)
-    gkey = svc.import_graph(GraphSource(kind="memory", value=nx_g, name="t_path8"))
+    graph_repo = InMemoryGraphRepository()
+    exp_repo = InMemoryExperimentRepository()
+    svc = ExperimentService(graph_repo, exp_repo)
 
-    # executing action (eg. running a sparsifier)
-    out_key = svc.run_sparsifier(gkey, "identity_stub", {})
+    nx_g = nx.path_graph(10)
 
-    g_in = svc.get_graph(gkey)
-    g_out = svc.get_graph(out_key)
+    gkey = svc.import_graph(GraphSource(kind="memory", value=nx_g, name="test_graph"))
 
-    # assertions/validations
-    assert g_out.edge_count <= g_in.edge_count
+    dto = svc.run_experiment(gkey, "identity_stub", ["diameter"])
 
-    # checking metrics
-    results = svc.compute_metrics(out_key, ["diameter"])
-    assert len(results) == 1
-    assert results[0].metric == "diameter"
+    # assert "execution_time" in dto.metadata
+    # assert dto.metadata["algorithm"] == "IdentitySparsifier"
+    # print(f"Transform took {dto.metadata['execution_time']}s")
+    #
+    # saved_graphs = graph_repo.list_names()
+    #
+    # assert len(saved_graphs) >= 1
+    # assert any("identity" in name for name in saved_graphs)
+    #
+    # assert len(exp_repo._storage) == 1

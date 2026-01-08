@@ -37,7 +37,7 @@ class GraphGateway:
             if source.fmt == "edgelist":
                 nx_graph = nx.read_edgelist(str(path), nodetype=int)
             else:
-                raise ValueError(f"Unsupported format: {source.fmt}")
+                raise ValueError(f"unsupported format: {source.fmt}")
 
         elif source.kind == "memory":
             if source.value is None:
@@ -47,7 +47,7 @@ class GraphGateway:
                 nx_graph = source.value
 
         else:
-            raise ValueError(f"Unknown source kind: {source.kind}")
+            raise ValueError(f"unknown source kind: {source.kind}")
 
         # conversion to domain entity
         return Graph.from_networkx(nx_graph, name=source.name)

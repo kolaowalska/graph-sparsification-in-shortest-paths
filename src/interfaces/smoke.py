@@ -3,12 +3,13 @@ import os
 
 from src.application.experiment_service import ExperimentService
 from src.infrastructure.graph_gateway import GraphSource
-from src.infrastructure.persistence.stubs import InMemoryGraphRepository
+from src.infrastructure.persistence.stubs import InMemoryGraphRepository, InMemoryExperimentRepository
 
 
 def run_smoke() -> None:
-    repo = InMemoryGraphRepository() # fake database for now
-    service = ExperimentService(graph_repo=repo) # inject into service
+    graph_repo = InMemoryGraphRepository()
+    exp_repo = InMemoryExperimentRepository()
+    service = ExperimentService(graph_repo=graph_repo, experiment_repo=exp_repo) # inject into service
 
     # defining source
     data_path = "src/data/toy.edgelist"

@@ -1,21 +1,28 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
 from src.domain.graph_model import Graph, RunParams
+from src.domain.experiment import Experiment
 from src.domain.sparsifiers.registry import SparsifierRegistry
 from src.domain.metrics.registry import MetricRegistry
 from src.domain.metrics.base import MetricResult
+
 from src.infrastructure.graph_gateway import GraphGateway, GraphSource
-from src.infrastructure.persistence.repo import GraphRepository
+from src.infrastructure.persistence.repo import GraphRepository, ExperimentRepository
+from src.infrastructure.persistence.unit_of_work import UnitOfWork
+from src.infrastructure.persistence.stubs import InMemoryExperimentRepository
+
 from src.application.dto import ExperimentDTO
 
-# SERVICE LAYER
-
 class ExperimentService:
-    def __init__(self, graph_repo: GraphRepository, gateway: Optional[GraphGateway] = None):
+    def __init__(
+            self,
+            graph_repo: GraphRepository,
+            experiment_repo: ExperimentRepository,
+            gateway: Optional[GraphGateway] = None):
         self.graph_repo = graph_repo
+        self.experiment_repo = experiment_repo or InMemoryExperimentRepository()
         self.gateway = gateway or GraphGateway()
 
     def import_graph(self, source: GraphSource) -> str:
@@ -25,16 +32,17 @@ class ExperimentService:
         graph = self.gateway.load(source)
         key = graph.name
 
-        if self.graph_repo.get(key) is not None:
-            i = 2
-            while self.graph_repo.get(f"{key}_{i}") is not None:
-                i += 1
-            key = f"{key}_{i}"
-            graph = Graph.from_networkx(
-                graph.to_networkx(copy=True),
-                name=key,
-                metadata=dict(graph.metadata)
-            )
+        # TODO: collision logic
+        # if self.graph_repo.get(key) is not None:
+        #     i = 2
+        #     while self.graph_repo.get(f"{key}_{i}") is not None:
+        #         i += 1
+        #     key = f"{key}_{i}"
+        #     graph = Graph.from_networkx(
+        #         graph.to_networkx(copy=True),
+        #         name=key,
+        #         metadata=dict(graph.metadata)
+        #     )
         self.graph_repo.save(graph)
         return key
 
@@ -42,7 +50,7 @@ class ExperimentService:
         graph = self.graph_repo.get(graph_key)
         if graph is None:
             available = ", ".join(self.graph_repo.list_names())
-            raise KeyError(f"graph not found: {graph_key}, available graphs: [{available}]")
+            raise KeyError(f"graph not found: {graph_key}. available graphs: [{available}]")
         return graph
 
     def list_graphs(self) -> list[str]:
@@ -52,59 +60,31 @@ class ExperimentService:
         self,
         graph_key: str,
         sparsifier_name: str,
-        params: dict[str, Any] | RunParams,
-        *,
-        output_name: Optional[str] = None,
-    ) -> str:
+        params: Dict[str, Any],
+    ) -> Graph:
         """
-        applies a sparsifier to a stored graph, stores output graph, and returns new graph key
+        applies a sparsifier using [LAYER SUPERTYPE] execute method and returns a graph object
         """
         SparsifierRegistry.discover()
 
-        g = self.get_graph(graph_key)
+        G = self.get_graph(graph_key)
         sparsifier = SparsifierRegistry.get(sparsifier_name)
 
-        rp: RunParams
-        if isinstance(params, dict):
-            rp = RunParams(params)
-        else:
-            rp = params
+        # calls execute() (layer supertype) not run()!
+        H = sparsifier.execute(G, RunParams(params))
+        return H
 
-        out = sparsifier.run(g, rp)
-        new_key = output_name or out.name
-
-        # collision check
-        if self.graph_repo.get(new_key) is not None:
-            i = 2
-            while self.graph_repo.get(f"{new_key}_{i}") is not None:
-                i += 1
-            new_key = f"{new_key}_{i}"
-            out = Graph.from_networkx(
-                out.to_networkx(copy=True),
-                name=new_key,
-                metadata=dict(out.metadata)
-            )
-        self.graph_repo.save(out)
-        return new_key
 
     def compute_metrics(
         self,
-        graph_key: str,
+        graph: Graph,
         metric_names: list[str],
-        params: Optional[dict[str, Any]] = None,
     ) -> list[MetricResult]:
-        """
-        computes a list of metrics on a stored graph
-        """
         MetricRegistry.discover()
-
-        g = self.get_graph(graph_key)
-        p = RunParams(params or {})
-
-        results: list[MetricResult] = []
+        results = []
         for name in metric_names:
             metric = MetricRegistry.get(name)
-            results.append(metric.compute(g, p))
+            results.append(metric.compute(graph, RunParams({})))
         return results
 
 # SERVICE LAYER ORCHESTRATION
@@ -116,26 +96,41 @@ class ExperimentService:
         metric_names: list[str],
     ) -> ExperimentDTO:
         """
-        uses the DTO to return a complete snapshot of experiment results
+        uses the [DTO] to orchestrate an experiment within a [UNIT OF WORK]
         """
-        G = self.get_graph(graph_key)
-        n_pre, m_pre = G.node_count, G.edge_count
+        # 1. start UOW
+        uow = UnitOfWork(self.graph_repo, self.experiment_repo)
 
-        key_new = self.run_sparsifier(graph_key, sparsifier_name, {})
-        H = self.get_graph(key_new)
+        with uow:
+            # 2. run transform
+            H = self.run_sparsifier(graph_key, sparsifier_name, {})
 
-        metric_results = self.compute_metrics(key_new, metric_names)
+            # 3. compute metrics
+            metric_results = self.compute_metrics(H, metric_names)
 
+            # 4. create experiment entity (domain object)
+            experiment = Experiment()
+            experiment.start()
+            for m in metric_results:
+                experiment.add_result(m.metric, m)
+            experiment.finish()
+
+            # 5. register new objects
+            uow.register_new_graph(H)
+            uow.register_new_experiment(experiment)
+
+            # context manager __exit__ should call uow.commit() automatically here (?)
+
+        # 6. return DTO for UI/console
+        original_graph = self.get_graph(graph_key)
         return ExperimentDTO(
             graph_name=graph_key,
-            nodes_before=n_pre,
-            edges_before=m_pre,
+            nodes_before=original_graph.node_count,
+            edges_before=original_graph.edge_count,
             nodes_after=H.node_count,
             edges_after=H.edge_count,
             sparsifier_name=sparsifier_name,
             metric_results=metric_results,
-            metadata={
-                "path_redundancy_score": 0.0, "is_coarsened": False
-            }
+            metadata=H.metadata
         )
 
