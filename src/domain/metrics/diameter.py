@@ -11,7 +11,8 @@ from src.domain.metrics.registry import register_metric
 class DiameterMetric(Metric):
     INFO = MetricInfo(
         name="diameter",
-        description="diameter; if disconnected uses largest connected component"
+        version="0.1.0",
+        description="diameter; if disconnected uses largest connected component."
     )
 
     def compute(self, graph: Graph, params: RunParams) -> MetricResult:

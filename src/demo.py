@@ -15,7 +15,7 @@ except ImportError:
 
 def main():
     print("==============================================================")
-    print("   GRAPH REDUCTION PIPELINE - DESIGN PATTERNS SHOWCASE")
+    print("              graph reduction pipeline (demo)")
     print("==============================================================")
 
     # 1. ENTRY POINT: initializing the remote facade
@@ -103,7 +103,7 @@ def main():
                 save_comparison_plot(g_orig, g_coarsened, "coarsening", "demo_coarsen.png")
 
     print("\n==============================================================")
-    print("   DEMO COMPLETED SUCCESSFULLY")
+    print("                     demo completed :)")
     print("==============================================================")
 
 
