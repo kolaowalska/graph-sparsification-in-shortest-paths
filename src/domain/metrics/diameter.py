@@ -11,13 +11,11 @@ from src.domain.metrics.registry import register_metric
 class DiameterMetric(Metric):
     INFO = MetricInfo(
         name="diameter",
-        version="0.1.0",
-        description="diameter; if disconnected uses largest connected component."
+        description="diameter; if disconnected uses largest connected component"
     )
 
     def compute(self, graph: Graph, params: RunParams) -> MetricResult:
         G = graph.to_networkx(copy=False)
-
         UG = G.to_undirected() if G.is_directed() else G
 
         component_size = 0
@@ -36,7 +34,7 @@ class DiameterMetric(Metric):
             metric=self.INFO.name,
             summary={
                 "diameter": val,
-                "component_nodes": component_size,
-                "total_nodes": UG.number_of_nodes()
+                # "component_nodes": component_size,
+                # "total_nodes": UG.number_of_nodes()
             }
         )

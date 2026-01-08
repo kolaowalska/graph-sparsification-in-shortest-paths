@@ -77,7 +77,7 @@ class Graph:
         -> copy=False returns a reference to the internal object. fast (O(1)), zero extra ram. use to read properties
         """
         if self._nx is None and self._loader is not None:
-            print(f"[LAZY LOAD] loading absolutely massive graph data for '{self.name}', hold on tight...")
+            print(f"[LAZY LOAD] loading absolutely massive graph data for '{self.name}', hold on tight... ;)")
             self._nx = self._loader()
             self.directed = self._nx.is_directed()
         if self._nx is None:

@@ -35,9 +35,7 @@ class UnitOfWork:
 
         self.committed = True
 
-        print(f"[UNIT OF WORK] committed transaction:\n"
-              f"-> {len(self._new_graphs)} graph(s)\n"
-              f"-> {len(self._new_experiments)} experiment(s)")
+        print(f"[UNIT OF WORK] committed transaction: {len(self._new_graphs)} graph(s), {len(self._new_experiments)} experiment(s)")
 
     def __enter__(self):
         return self
