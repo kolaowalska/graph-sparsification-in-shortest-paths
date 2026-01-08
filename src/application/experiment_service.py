@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Optional, Dict
 
+from src.domain.transforms.registry import TransformRegistry
 from src.domain.graph_model import Graph, RunParams
 from src.domain.experiment import Experiment
 from src.domain.sparsifiers.registry import SparsifierRegistry
@@ -71,8 +72,23 @@ class ExperimentService:
         sparsifier = SparsifierRegistry.get(sparsifier_name)
 
         # calls execute() (layer supertype) not run()!
-        H = sparsifier.execute(G, RunParams(params))
-        return H
+        return sparsifier.execute(G, RunParams(params))
+
+
+    def run_transform(
+        self,
+        graph_key: str,
+        tranform_name: str,
+        params: Dict[str, Any],
+    ) -> Graph:
+        """
+        applies a transformation using [LAYER SUPERTYPE] execute method and returns a graph object
+        """
+        TransformRegistry.discover()
+
+        G = self.get_graph(graph_key)
+        transform = TransformRegistry.get(tranform_name)
+        return transform.execute(G, RunParams(params))
 
 
     def compute_metrics(
@@ -92,18 +108,30 @@ class ExperimentService:
     def run_experiment(
         self,
         graph_key: str,
-        sparsifier_name: str,
+        algorithm_name: str,
         metric_names: list[str],
+        params: Optional[Dict[str, Any]] = None,
     ) -> ExperimentDTO:
         """
         uses the [DTO] to orchestrate an experiment within a [UNIT OF WORK]
         """
-        # 1. start UOW
+        # 0. start UOW
         uow = UnitOfWork(self.graph_repo, self.experiment_repo)
+        run_params = params or {}
 
         with uow:
-            # 2. run transform
-            H = self.run_sparsifier(graph_key, sparsifier_name, {})
+            # 1. discovery
+            SparsifierRegistry.discover()
+            TransformRegistry.discover()
+
+            # 2. polymorphic execution
+            if algorithm_name in SparsifierRegistry.list():
+                H = self.run_sparsifier(graph_key, algorithm_name, run_params)
+            elif algorithm_name in TransformRegistry.list():
+                H = self.run_transform(graph_key, algorithm_name, run_params)
+            else:
+                all_algos = sorted(SparsifierRegistry.list() + TransformRegistry.list())
+                raise KeyError(f"algorithm '{algorithm_name}' not found. available: {all_algos}")
 
             # 3. compute metrics
             metric_results = self.compute_metrics(H, metric_names)
@@ -129,7 +157,7 @@ class ExperimentService:
             edges_before=original_graph.edge_count,
             nodes_after=H.node_count,
             edges_after=H.edge_count,
-            sparsifier_name=sparsifier_name,
+            algorithm_name=algorithm_name,
             metric_results=metric_results,
             metadata=H.metadata
         )
