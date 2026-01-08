@@ -18,7 +18,7 @@ class TransformInfo:
     supports_directed: bool = True
     supports_weighted: bool = True
     deterministic: bool = False
-    param_schema: Mapping[str, ParamSpec] = field(default_factory=dict)
+    # param_schema: Mapping[str, ParamSpec] = field(default_factory=dict)
 
     def descriptor(self) -> OperationDescriptor:
         return OperationDescriptor(kind="transform", name=self.name, version=self.version)
