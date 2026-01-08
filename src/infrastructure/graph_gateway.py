@@ -55,28 +55,3 @@ class GraphGateway:
 
         else:
             raise ValueError(f"unknown source kind: {source.kind}")
-
-        # nx_graph = None
-
-        # if source.kind == "file":
-        #     path = Path(source.value)
-        #     if not path.exists():
-        #         raise FileNotFoundError(f"graph file not found: {path.absolute()}")
-        #
-        #     if source.fmt == "edgelist":
-        #         nx_graph = nx.read_edgelist(str(path), nodetype=int)
-        #     else:
-        #         raise ValueError(f"unsupported format: {source.fmt}")
-        #
-        # elif source.kind == "memory":
-        #     if source.value is None:
-        #         # fallback for smoke tests if no graph is provided
-        #         nx_graph = nx.cycle_graph(5)
-        #     else:
-        #         nx_graph = source.value
-        #
-        # else:
-        #     raise ValueError(f"unknown source kind: {source.kind}")
-        #
-        # # conversion to domain entity
-        # return Graph.from_networkx(nx_graph, name=source.name)

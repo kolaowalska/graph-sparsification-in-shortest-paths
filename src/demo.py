@@ -34,23 +34,29 @@ def main():
         return
 
     graph_key = response["graph_key"]
-    print(f" -> uploaded successfully :) ID: {graph_key}")
+    print(f" → uploaded successfully :) ID: {graph_key}")
 
     ## [STRATEGY]: random sparsification
     print(f"\n[♥] running sparsification scenario: random sparsifier with (p=0.4)")
     payload_a = {
         "graph_key": graph_key,
         "algorithm": "random",
-        "metrics": ["diameter"],
+        "metrics": ["diameter", "avg_path_length"],
         "params": {"p": 0.4, "seed": 123}
     }
     result_a = api.run_job(payload_a)
 
     if result_a["status"] == "success":
         data = result_a["data"]
-        print(f" -> nodes: {data['nodes_before']} -> {data['nodes_after']}")
-        print(f" -> edges: {data['edges_before']} -> {data['edges_after']}")
-        print(f" -> metric: {data['metric_results'][0]['summary']}")
+        print(f" • nodes: {data['nodes_before']} → {data['nodes_after']}")
+        print(f" • edges: {data['edges_before']} → {data['edges_after']}")
+        print(f" • metrics:")
+        for m_result in data.get("metric_results", []):
+            metric_name = m_result['metric']
+            summary_values = m_result['summary']
+            formatted_values = ", ".join([f"{v}" for k, v in summary_values.items()])
+            # formatted_values = ", ".join([f"{k} = {v}" for k, v in summary_values.items()])
+            print(f"    {metric_name}: {formatted_values}")
     else:
         print("error:", result_a)
 
@@ -59,16 +65,21 @@ def main():
     payload_b = {
         "graph_key": graph_key,
         "algorithm": "mock_coarsening",
-        "metrics": ["diameter"],
+        "metrics": ["diameter", "avg_path_length"],
         "params": {"reduction_ratio": 0.5}
     }
     result_b = api.run_job(payload_b)
 
     if result_b["status"] == "success":
-        data = result_b["data"]
-        print(f" -> nodes: {data['nodes_before']} -> {data['nodes_after']}")
-        print(f" -> edges: {data['edges_before']} -> {data['edges_after']}")
-        print(f" -> metric: {data['metric_results'][0]['summary']}")
+        print(f" • nodes: {data['nodes_before']} → {data['nodes_after']}")
+        print(f" • edges: {data['edges_before']} → {data['edges_after']}")
+        print(f" • metrics:")
+        for m_result in data.get("metric_results", []):
+            metric_name = m_result['metric']
+            summary_values = m_result['summary']
+            formatted_values = ", ".join([f"{v}" for k, v in summary_values.items()])
+            # formatted_values = ", ".join([f"{k} = {v}" for k, v in summary_values.items()])
+            print(f"    {metric_name}: {formatted_values}")
     else:
         print("error:", result_b)
 
