@@ -25,12 +25,15 @@ class Metric(ABC):
     INFO: MetricInfo
 
     def compute(self, graph: Graph, params: RunParams) -> MetricResult:
-        self.validate_params(params)
-        return self._compute(graph, params)
+        # self.validate_params(params)
+        # return self._compute(graph, params)
+        pass
 
+    # TODO ??
     def validate_params(self, params: RunParams) -> None:
         return
 
-    @abstractmethod
-    def _compute(self, graph: Graph, params: RunParams) -> MetricResult:
-        raise NotImplementedError
+    # @abstractmethod
+    # def _compute(self, graph: Graph, params: RunParams) -> MetricResult:
+    #     pass
+    #     # raise NotImplementedError

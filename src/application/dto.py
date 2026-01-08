@@ -15,8 +15,7 @@ class ExperimentDTO:
     edges_before: int
     nodes_after: int
     edges_after: int
-    sparsifier_name: str
+    algorithm_name: str
     metric_results: List[MetricResult]
-
-    metadata: Dict[str, Any] # miejsce na wszystkie moje szalone pomysly :)
+    metadata: Dict[str, Any]
 

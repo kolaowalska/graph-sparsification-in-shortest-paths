@@ -8,20 +8,20 @@ from typing import Any, Dict
 from src.domain.graph_model import Graph, RunParams, OperationDescriptor
 
 
-class TransformInfo:
-    """
-    metadata for a GraphTransform plugin
-    similar to SparsifierInfo, but for generic graph-to-graph operations hopefully in the future
-    """
-    name: str
-    version: str = "1.0.0"
-    supports_directed: bool = True
-    supports_weighted: bool = True
-    deterministic: bool = False
-    param_schema: Mapping[str, ParamSpec] = field(default_factory=dict)
-
-    def descriptor(self) -> OperationDescriptor:
-        return OperationDescriptor(kind="transform", name=self.name, version=self.version)
+# class TransformInfo:
+#     """
+#     metadata for a GraphTransform plugin
+#     similar to SparsifierInfo, but for generic graph-to-graph operations hopefully in the future
+#     """
+#     name: str
+#     version: str = "1.0.0"
+#     supports_directed: bool = True
+#     supports_weighted: bool = True
+#     deterministic: bool = False
+#     param_schema: Mapping[str, ParamSpec] = field(default_factory=dict)
+#
+#     def descriptor(self) -> OperationDescriptor:
+#         return OperationDescriptor(kind="transform", name=self.name, version=self.version)
 
 
 class GraphTransform(ABC):
@@ -33,7 +33,7 @@ class GraphTransform(ABC):
         [TEMPLATE METHOD] the public entry point to handle the boilerplate
         """
         if graph.node_count == 0:
-            logging.warning(f"[{self.__class__.__name__}] no nodes found")
+            logging.warning(f"[{self.__class__.__name__}] warning: no nodes found")
 
         print(f"\n[{self.__class__.__name__}] starting transformation on '{graph.name}'")
         start_time = time.time()
@@ -52,5 +52,6 @@ class GraphTransform(ABC):
     def run(self, graph: Graph, params: RunParams) -> Graph:
         """
         [UNIFIED COMMAND INTERFACE] the specific logic that subclasses should implement
+        returns a new Graph object
         """
         pass

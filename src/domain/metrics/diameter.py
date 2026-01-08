@@ -15,7 +15,7 @@ class DiameterMetric(Metric):
         description="diameter; if disconnected uses largest connected component."
     )
 
-    def _compute(self, graph: Graph, params: RunParams) -> MetricResult:
+    def compute(self, graph: Graph, params: RunParams) -> MetricResult:
         G = graph.to_networkx(copy=False)
         UG = G.to_undirected() if isinstance(G, nx.DiGraph) else G
 
