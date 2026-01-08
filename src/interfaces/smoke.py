@@ -26,15 +26,16 @@ def run_smoke() -> None:
         source = GraphSource(kind="memory", value=g, name="mock-demo-graph")
 
     graph_key = service.import_graph(source)
-    print(f"[smoke] graph imported successfully: '{graph_key}'")
+    print(f"\n[smoke] graph imported successfully: '{graph_key}'")
 
     try:
         # 3. running the actual experiment
-        report = service.run_experiment(graph_key, "identity_stub", ["diameter"])
+        # report = service.run_experiment(graph_key, "identity_stub", ["diameter"])
+        report = service.run_experiment(graph_key, "mock_coarsening", ["diameter"])
 
         print("\n--- SMOKE TEST RESULTS ---")
         print(f"graph name: {report.graph_name}")
-        print(f"sparsifier: {report.sparsifier_name}")
+        print(f"algorithm: {report.algorithm_name}")
         print(f"reduction: {report.nodes_before} -> {report.nodes_after} nodes")
 
         # 4. handling metrics
@@ -42,6 +43,7 @@ def run_smoke() -> None:
         for m in report.metric_results:
             # TODO: format the summary dict for display
             summary_str = ", ".join([f"{k} = {v}" for k, v in m.summary.items()])
+            # TODO: implement saving to .csv file or something
             print(f"  - {m.metric}: {summary_str}")
 
         print("--- SUCCESS ---")

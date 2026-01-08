@@ -25,7 +25,7 @@ class GraphGateway:
     """
 
     def load(self, source: GraphSource) -> Graph:
-        print(f"[gateway] loading graph '{source.name}' from {source.kind}...")
+        print(f"\n[GATEWAY] loading graph '{source.name}' from {source.kind}...")
 
         nx_graph = None
 
