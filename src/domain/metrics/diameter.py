@@ -17,16 +17,26 @@ class DiameterMetric(Metric):
 
     def compute(self, graph: Graph, params: RunParams) -> MetricResult:
         G = graph.to_networkx(copy=False)
-        UG = G.to_undirected() if isinstance(G, nx.DiGraph) else G
 
+        UG = G.to_undirected() if G.is_directed() else G
+
+        component_size = 0
         if UG.number_of_nodes() == 0:
-            return MetricResult(metric=self.INFO.name, summary={"diameter": 0})
-
-        if nx.is_connected(UG):
-            d = nx.diameter(UG)
+            val = 0.0
+        elif nx.is_connected(UG):
+            val = float(nx.diameter(UG))
+            component_size = UG.number_of_nodes()
         else:
-            largest = max(nx.connected_components(UG), key=len)
-            H = UG.subgraph(largest).copy()
-            d = nx.diameter(H)
+            largest_cc = max(nx.connected_components(UG), key=len)
+            subgraph = UG.subgraph(largest_cc)
+            val = float(nx.diameter(subgraph))
+            component_size = len(largest_cc)
 
-        return MetricResult(metric=self.INFO.name, summary={"diameter": d})
+        return MetricResult(
+            metric=self.INFO.name,
+            summary={
+                "diameter": val,
+                "component_nodes": component_size,
+                "total_nodes": UG.number_of_nodes()
+            }
+        )

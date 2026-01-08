@@ -59,7 +59,8 @@ NetworkX graph `_nx` is only loaded from disk only when `to_networkx()` is calle
 `src/infrastructure/persistence/repo.py`\
 provides a collection-like interface with methods like `save()` and `get()` for accessing Domain objects, mediating between
 the __domain__ and the __data mapping__ layers.
-4. __distribution patterns__\
+4. __distribution patterns__
+- __data transfer object__\
 `src/application/dto.py`\
 `ExperimentDTO` is a simple data container used to carry data from the __service layer__ to the "outer world" of CLI and tests.
 it decouples the presentation layer from the internal domain model.
