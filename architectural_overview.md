@@ -1,6 +1,6 @@
 ## architectural overview
 
-the project follows a __layered architecture__ design style with dependencies pointing inwards. the core logic is 
+the project follows a __layered architecture__ design with dependencies pointing inwards. the core logic is 
 isolated in `domain`, orchestrated by `application`, and supported by `infrastructure`.
 
 1. __fundamental patterns__
