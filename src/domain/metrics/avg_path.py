@@ -16,6 +16,8 @@ class AvgPathLength(Metric):
 
     def compute(self, graph: Graph, params: RunParams) -> MetricResult:
         G = graph.to_networkx(copy=False)
+        weight_arg = "weight" if graph.is_weighted() else None
+
         UG = G.to_undirected() if G.is_directed() else G
 
         if UG.number_of_nodes() <= 1:
@@ -27,13 +29,12 @@ class AvgPathLength(Metric):
                 largest_cc = max(nx.connected_components(UG), key=len)
                 subgraph = UG.subgraph(largest_cc)
 
-            # stub for small graphs in demos
             try:
-                val = nx.average_shortest_path_length(subgraph)
+                val = nx.average_shortest_path_length(subgraph, weight=weight_arg)
             except Exception:
                 val = -1.0
 
         return MetricResult(
             metric=self.INFO.name,
-            summary={"avg": float(val)}
+            summary={"avg": float(val), "weighted": bool(weight_arg)}
         )

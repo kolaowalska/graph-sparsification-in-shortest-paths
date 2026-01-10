@@ -28,7 +28,13 @@ def main():
         return
 
     print(f"\n[♥] uploading Graph from {data_path}")
-    response = api.upload_graph({"path": data_path, "name": "demo_graph", "kind": "file"})
+    response = api.upload_graph({
+        "path": data_path,
+        "name": "demo_graph",
+        "kind": "file",
+        "directed": True,
+        "weighted": True
+    })
     if response["status"] != "success":
         print("upload failed :( ", response)
         return
