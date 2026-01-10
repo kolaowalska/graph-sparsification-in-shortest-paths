@@ -71,6 +71,7 @@ def main():
     result_b = api.run_job(payload_b)
 
     if result_b["status"] == "success":
+        data = result_b["data"]
         print(f" • nodes: {data['nodes_before']} → {data['nodes_after']}")
         print(f" • edges: {data['edges_before']} → {data['edges_after']}")
         print(f" • metrics:")
