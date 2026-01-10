@@ -47,7 +47,7 @@ def main():
     payload_a = {
         "graph_key": graph_key,
         "algorithm": "random",
-        "metrics": ["diameter", "avg_path_length"],
+        "metrics": ["diameter", "avg_path_length", "degree_distribution"],
         "params": {"p": 0.4, "seed": 123}
     }
     result_a = api.run_job(payload_a)
@@ -60,8 +60,8 @@ def main():
         for m_result in data.get("metric_results", []):
             metric_name = m_result['metric']
             summary_values = m_result['summary']
-            formatted_values = ", ".join([f"{v}" for k, v in summary_values.items()])
-            # formatted_values = ", ".join([f"{k} = {v}" for k, v in summary_values.items()])
+            # formatted_values = ", ".join([f"{v}" for k, v in summary_values.items()])
+            formatted_values = ", ".join([f"{k} = {v}" for k, v in summary_values.items()])
             print(f"    {metric_name}: {formatted_values}")
     else:
         print("error:", result_a)
@@ -71,7 +71,7 @@ def main():
     payload_b = {
         "graph_key": graph_key,
         "algorithm": "mock_coarsening",
-        "metrics": ["diameter", "avg_path_length"],
+        "metrics": ["diameter", "avg_path_length", "degree_distribution"],
         "params": {"reduction_ratio": 0.5}
     }
     result_b = api.run_job(payload_b)
@@ -84,8 +84,8 @@ def main():
         for m_result in data.get("metric_results", []):
             metric_name = m_result['metric']
             summary_values = m_result['summary']
-            formatted_values = ", ".join([f"{v}" for k, v in summary_values.items()])
-            # formatted_values = ", ".join([f"{k} = {v}" for k, v in summary_values.items()])
+            # formatted_values = ", ".join([f"{v}" for k, v in summary_values.items()])
+            formatted_values = ", ".join([f"{k} = {v}" for k, v in summary_values.items()])
             print(f"    {metric_name}: {formatted_values}")
     else:
         print("error:", result_b)
