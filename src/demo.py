@@ -7,6 +7,7 @@ from src.interfaces.api import ExperimentFacade
 
 try:
     from src.interfaces.visualizer import save_comparison_plot
+
     VISUALIZE = True
 except ImportError:
     VISUALIZE = False
@@ -14,9 +15,39 @@ except ImportError:
 
 
 def main():
-    print("==============================================================")
-    print("              graph reduction pipeline (demo)")
-    print("==============================================================")
+
+    # ------------------------- CONFIGURATION -------------------------
+
+    METRICS = [
+        "diameter",
+        "avg_path_length",
+        "degree_distribution"
+    ]
+
+    SCENARIOS = [
+        {
+            "label": "Random Sparsifier (p=0.3)",
+            "algorithm": "random",
+            "params": {"p": 0.3, "seed": 123}
+        },
+        {
+            "label": "K-Neighbor Sparsifier (rho=0.5)",
+            "algorithm": "k_neighbor",
+            "params": {"rho": 0.5, "seed": 42}
+        },
+        {
+            "label": "Local Degree Sparsifier (rho=0.5)",
+            "algorithm": "local_degree",
+            "params": {"rho": 0.5}
+        },
+        {
+            "label": "Graph Coarsening (50% node reduction)",
+            "algorithm": "mock_coarsening",
+            "params": {"reduction_ratio": 0.5}
+        }
+    ]
+
+    # ---------------------------------------------------------------
 
     # 1. ENTRY POINT: initializing the remote facade
     api = ExperimentFacade()
@@ -35,6 +66,7 @@ def main():
         "directed": True,
         "weighted": True
     })
+
     if response["status"] != "success":
         print("upload failed :( ", response)
         return
@@ -42,76 +74,76 @@ def main():
     graph_key = response["graph_key"]
     print(f" → uploaded successfully :) ID: {graph_key}")
 
-    ## [STRATEGY]: random sparsification
-    print(f"\n[♥] running sparsification scenario: random sparsifier with (p=0.4)")
-    payload_a = {
-        "graph_key": graph_key,
-        "algorithm": "random",
-        "metrics": ["diameter", "avg_path_length", "degree_distribution"],
-        "params": {"p": 0.4, "seed": 123}
-    }
-    result_a = api.run_job(payload_a)
+    # 3. EXECUTION LOOP
+    for i, scenario in enumerate(SCENARIOS, 1):
+        label = scenario["label"]
+        algo_name = scenario["algorithm"]
+        params = scenario["params"]
 
-    if result_a["status"] == "success":
-        data = result_a["data"]
-        print(f" • nodes: {data['nodes_before']} → {data['nodes_after']}")
-        print(f" • edges: {data['edges_before']} → {data['edges_after']}")
-        print(f" • metrics:")
-        for m_result in data.get("metric_results", []):
-            metric_name = m_result['metric']
-            summary_values = m_result['summary']
-            # formatted_values = ", ".join([f"{v}" for k, v in summary_values.items()])
-            formatted_values = ", ".join([f"{k} = {v}" for k, v in summary_values.items()])
-            print(f"    {metric_name}: {formatted_values}")
-    else:
-        print("error:", result_a)
+        print("\n♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥")
+        print(f"\n[♥] Scenario {i}/{len(SCENARIOS)}: {label}")
 
-    ## [LAYER SUPERTYPE]: graph coarsening
-    print(f"\n[♥] running transformation scenario: graph coarsening (merge 50% of nodes)")
-    payload_b = {
-        "graph_key": graph_key,
-        "algorithm": "mock_coarsening",
-        "metrics": ["diameter", "avg_path_length", "degree_distribution"],
-        "params": {"reduction_ratio": 0.5}
-    }
-    result_b = api.run_job(payload_b)
+        payload = {
+            "graph_key": graph_key,
+            "algorithm": algo_name,
+            "metrics": METRICS,
+            "params": params
+        }
 
-    if result_b["status"] == "success":
-        data = result_b["data"]
-        print(f" • nodes: {data['nodes_before']} → {data['nodes_after']}")
-        print(f" • edges: {data['edges_before']} → {data['edges_after']}")
-        print(f" • metrics:")
-        for m_result in data.get("metric_results", []):
-            metric_name = m_result['metric']
-            summary_values = m_result['summary']
-            # formatted_values = ", ".join([f"{v}" for k, v in summary_values.items()])
-            formatted_values = ", ".join([f"{k} = {v}" for k, v in summary_values.items()])
-            print(f"    {metric_name}: {formatted_values}")
-    else:
-        print("error:", result_b)
+        result = api.run_job(payload)
 
-    # visualization
+        if result["status"] == "success":
+            data = result["data"]
+            print(f" • nodes: {data['nodes_before']} → {data['nodes_after']}")
+            print(f" • edges: {data['edges_before']} → {data['edges_after']}")
+            print(f" • metrics:")
+
+            for m_result in data.get("metric_results", []):
+                metric_name = m_result['metric']
+                summary = m_result['summary']
+
+                formatted_values = []
+                for k, v in summary.items():
+                    if isinstance(v, float):
+                        formatted_values.append(f"{k} = {v:.4f}")
+                    else:
+                        formatted_values.append(f"{k} = {v}")
+
+                print(f"    - {metric_name}: {', '.join(formatted_values)}")
+        else:
+            print(f"error running {algo_name}:", result)
+
+
+    # 4. VISUALIZATION
     if VISUALIZE:
-        print("\n[♥] generating visualizations...")
-        # cheating here slightly (but for a good cause) for presentation purposes by accessing the internal repo to get objects for plotting
-        # TODO: request raw data via API to implement a real facade
+        print("\n♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥")
+        print("\n[♥] generating visualizations\n")
         repo = api._service.graph_repo
+        try:
+            G = repo.get(graph_key).to_networkx()
+            all_graphs = repo.list_names()
 
-        g_orig = repo.get(graph_key).to_networkx()
+            for name in all_graphs:
+                if name == graph_key:
+                    continue
 
-        all_graphs = repo.list_names()
+                label = "modified"
+                if "random" in name:
+                    label = "random_sparsification"
+                elif "neighbor" in name:
+                    label = "k_neighbor"
+                elif "degree" in name:
+                    label = "local_degree"
+                elif "coarsen" in name:
+                    label = "coarsening"
 
-        for name in all_graphs:
-            if "random" in name:
-                g_sparsified = repo.get(name).to_networkx()
-                save_comparison_plot(g_orig, g_sparsified, "sparsification", "demo_sparsify.png")
-            elif "coarsened" in name:
-                g_coarsened = repo.get(name).to_networkx()
-                save_comparison_plot(g_orig, g_coarsened, "coarsening", "demo_coarsen.png")
+                g_mod = repo.get(name).to_networkx()
+                save_comparison_plot(G, g_mod, label, f"demo_{label}.png")
 
-    print("\n==============================================================")
-    print("                     demo completed :)")
-    print("==============================================================")
+        except Exception as e:
+            print(f"visualization error: {e}")
+
+    print("\n♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ demo completed :) ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥")
 
 
 if __name__ == "__main__":
