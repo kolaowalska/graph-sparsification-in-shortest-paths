@@ -12,15 +12,24 @@ from src.domain.sparsifiers.registry import register_sparsifier
 class RandomSparsifier(Sparsifier):
     def run(self, graph: Graph, params: RunParams) -> Graph:
         p = params.get("p", 0.5)
-        seed = params.get("seed", 42)
+        seed = params.get("seed", 420)
 
         rng = random.Random(seed)
         G = graph.to_networkx()
 
-        edges = [(u, v) for u, v in G.edges() if rng.random() <= p]
-
-        H = nx.Graph()
+        H = nx.DiGraph() if graph.is_directed() else nx.Graph()
         H.add_nodes_from(G.nodes())
-        H.add_edges_from(edges)
 
-        return Graph.from_networkx(H, name=f"{graph.name}_random_{p}", metadata={"p": p})
+        kept_edges = [
+            (u, v, d)
+            for u, v, d in G.edges(data=True)
+            if rng.random() <= p
+        ]
+
+        H.add_edges_from(kept_edges)
+
+        return Graph.from_networkx(
+            H,
+            name=f"{graph.name}_random_{p}",
+            metadata={"p": p}
+        )

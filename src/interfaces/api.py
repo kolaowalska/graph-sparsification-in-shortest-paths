@@ -27,7 +27,9 @@ class ExperimentFacade:
         source = GraphSource(
             kind=request_json.get("kind", "file"),
             value=request_json["path"],
-            name=request_json["name"]
+            name=request_json["name"],
+            directed = request_json.get("directed", False),
+            weighted = request_json.get("weighted", False)
         )
         try:
             key = self._service.import_graph(source)
