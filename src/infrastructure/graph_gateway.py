@@ -12,11 +12,13 @@ from src.domain.graph_model import Graph
 @dataclass
 class GraphSource:
     """
-    [DTO] specifying where to find a graph
+    [DTO] specifying where to find a graph and how it should be interpreted
     """
     kind: str
     name: str
     value: Any = None
+    directed: bool = False
+    weighted: bool = False
     # fmt: Optional[str] = "edgelist"
 
 
@@ -24,7 +26,6 @@ class GraphGateway:
     """
     [GATEWAY] to external graph data
     """
-
     def load(self, source: GraphSource) -> Graph:
         print(f"\n[GATEWAY] loading graph '{source.name}' from {source.kind}...")
 
@@ -40,17 +41,33 @@ class GraphGateway:
             if not os.path.exists(path):
                 raise FileNotFoundError(f"file not found: {path}")
 
-            # Define the Lazy Loader
             def lazy_loader():
-                print(f"\n[LAZY LOAD] reading file: {path}")
-                return nx.read_edgelist(str(path), nodetype=int)
+                print(f"\n[LAZY LOAD] reading file {path}")
+
+                create_using = nx.DiGraph if source.directed else nx.Graph
+
+                if source.weighted:
+                    return nx.read_edgelist(
+                        str(path),
+                        nodetype=int,
+                        create_using=create_using,
+                        data=(('weight', float),)
+                    )
+                else:
+                    return nx.read_edgelist(
+                        str(path),
+                        nodetype=int,
+                        create_using=create_using
+                        # default: data=True
+                    )
 
             return Graph.from_loader(name=source.name, loader_f=lazy_loader)
 
         elif source.kind == "memory":
-            # Direct loading from memory (for tests)
             if source.value is None:
-                return nx.Graph()
+                return nx.DiGraph() if source.directed else nx.Graph()
+
+            # TODO: strict conversion (source.value.to_directed()) if source.directed else ...
             return Graph.from_networkx(source.value, name=source.name)
 
         else:

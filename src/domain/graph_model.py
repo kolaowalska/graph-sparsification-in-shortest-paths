@@ -64,13 +64,16 @@ class Graph:
 
         if self._nx:
             self.directed = self._nx.is_directed()
+            self.weighted = nx.is_weighted(self._nx)
             # self.weighted = any("weight" in d for _, _, d in nx_graph.edges(data=True) or weight_attr != "weight")
-        elif loader:
-            self.directed = None # unknown until loaded
         else:
-            self.directed = False
+            self.directed = None # unknown until loaded
+            self.weighted = None
+        # else:
+        #     self.directed = False
+        #     self.weighted = False
 
-    def to_networkx(self, copy: bool = True) -> nx.Graph:
+    def to_networkx(self, copy: bool = True) -> nx.Graph | nx.DiGraph:
         """
         [LAZY LOAD] triggers loading from db if _nx is None
         -> copy=True returns a clone. slow (O(V + E)), consumes double RAM, but safe for mutation
@@ -79,9 +82,14 @@ class Graph:
         if self._nx is None and self._loader is not None:
             print(f"[LAZY LOAD] loading absolutely massive graph data for '{self.name}', hold on tight... ;)")
             self._nx = self._loader()
-            self.directed = self._nx.is_directed()
+
+            if self._nx is not None:
+                self.directed = self._nx.is_directed()
+                self.weighted = nx.is_weighted(self._nx)
+
         if self._nx is None:
             return nx.Graph()
+
         return self._nx.copy() if copy else self._nx
 
     @property
@@ -97,6 +105,12 @@ class Graph:
     def is_directed(self) -> bool:
         # return self.directed
         return self.to_networkx(copy=False).is_directed()
+
+    def is_weighted(self) -> bool:
+        """returns True if all edges have a 'weight' attribute"""
+        if self.weighted is not None:
+            return self.weighted
+        return nx.is_weighted(self.to_networkx(copy=False))
 
     # def is_weighted(self) -> bool:
     #     return self.weighted
@@ -139,10 +153,13 @@ class Graph:
     def edge_weight(self, u: Any, v: Any, default: float = 1.0, weight_attr: str = "weight") -> float:
         G = self.to_networkx(copy=False)
         data = G.get_edge_data(u, v, default=None)
-        if not data:
+
+        if data is None:
             raise KeyError(f"edge ({u}, {v}) not found :(")
+
         if isinstance(data, dict):
             return float(data.get(weight_attr, default))
+
         return float(min(d.get(weight_attr, default) for d in data.values()))
 
     # FACTORIES
