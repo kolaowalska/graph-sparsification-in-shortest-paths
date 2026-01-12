@@ -26,6 +26,11 @@ def main():
 
     SCENARIOS = [
         {
+            "label": "Baseline - Original Graph",
+            "algorithm": "identity_stub",
+            "params": {}
+        },
+        {
             "label": "Random Sparsifier (p=0.3)",
             "algorithm": "random",
             "params": {"p": 0.3, "seed": 123}

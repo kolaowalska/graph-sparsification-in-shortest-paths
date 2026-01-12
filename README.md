@@ -1,7 +1,5 @@
 # graph complexity reduction framework
 
----
-
 ## overview & purpose
 this project is a comprehensive, research-oriented pipeline 
 for evaluating graph reduction algorithms. the design provides support for 
@@ -65,8 +63,6 @@ detailed dictionaries of values and metadata from the calculation
 the experiment results are saved to storage simultaneously, preventing 
 dirty data resulting from errors
 
----
-
 ## quick start
 
 ### experimental setup
@@ -83,7 +79,6 @@ python src/demo.py
 this small script runs a small selection of scenarios and outputs comparative 
 metric results along with some basic visualizations.
 
----
 
 ## extensibility
 ### algorithm agnosticism

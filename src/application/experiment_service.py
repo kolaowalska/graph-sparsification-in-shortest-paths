@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from typing import Any, Optional, Dict
 
 from src.domain.transforms.registry import TransformRegistry
@@ -98,9 +99,25 @@ class ExperimentService:
     ) -> list[MetricResult]:
         MetricRegistry.discover()
         results = []
+
         for name in metric_names:
             metric = MetricRegistry.get(name)
-            results.append(metric.compute(graph, RunParams({})))
+            start = time.perf_counter()
+            result = metric.compute(graph, RunParams({}))
+            duration = time.perf_counter() - start
+
+            new_summary = dict(result.summary)
+            new_summary['execution_time'] = duration
+
+            # results.append(metric.compute(graph, RunParams({})))
+
+            updated_result = MetricResult(
+                metric=result.metric,
+                summary=new_summary,
+                artifacts=result.artifacts
+            )
+            results.append(updated_result)
+
         return results
 
 # SERVICE LAYER ORCHESTRATION
@@ -123,6 +140,7 @@ class ExperimentService:
             # 1. discovery
             SparsifierRegistry.discover()
             TransformRegistry.discover()
+            start = time.perf_counter()
 
             # 2. polymorphic execution
             if algorithm_name in SparsifierRegistry.list():
@@ -132,6 +150,10 @@ class ExperimentService:
             else:
                 all_algos = sorted(SparsifierRegistry.list() + TransformRegistry.list())
                 raise KeyError(f"algorithm '{algorithm_name}' not found. available: {all_algos}")
+
+            transform_time = time.perf_counter() - start
+            if isinstance(H.metadata, dict):
+                H.metadata['execution_time'] = transform_time
 
             # 3. compute metrics
             metric_results = self.compute_metrics(H, metric_names)
@@ -151,6 +173,7 @@ class ExperimentService:
 
         # 6. return DTO for UI/console
         original_graph = self.get_graph(graph_key)
+
         return ExperimentDTO(
             graph_name=graph_key,
             nodes_before=original_graph.node_count,
