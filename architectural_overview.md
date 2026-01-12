@@ -3,7 +3,7 @@
 the project follows a __layered architecture__ design with dependencies pointing inwards. the core logic is 
 isolated in `domain`, orchestrated by `application`, and supported by `infrastructure`.
 
-1. __fundamental patterns__
+### fundamental patterns
 - __gateway__\
 `src/infrastructure/graph_gateway.py`\
 encapsulates access to external systems (NetworkX, file system, etc.). it converts raw data sources like files 
@@ -32,7 +32,8 @@ than their identity.
 `src/infrastructure/persistence/stubs.py`\
 `InMemoryGraphRepository` simulates a database using a dictionary, which allows the system to run tests and demos
 without a real database connection.
-2. __domain logic patterns__
+
+### domain logic patterns
 - __domain model__\
 `src/domain/graph_model.py`\
 the `Graph` class contains both data (`_nx`) and behavior (`is_directed`, `to_networkx`) and acts as the core of the 
@@ -46,7 +47,7 @@ business logic
 algorithms like `RandomSparsifier` and `IdentitySparsifier` are interchangeable strategies that the service can swap 
 at runtime as they all adhere to the `run(graph, params)` interface. 
 
-3. __object-relational behaviors__
+### object-relational behaviors
 - __unit of work__\
 `src/infrastructure/persistence/unit_of_work.py`\
 maintains a list of objects affected by a "business transaction"; ensures that the result `Graph` object and the `Experiment`
