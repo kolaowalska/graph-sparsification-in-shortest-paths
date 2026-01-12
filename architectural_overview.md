@@ -10,7 +10,7 @@ encapsulates access to external systems (NetworkX, file system, etc.). it conver
 or memory objects into __domain__ `Graph` objects.
 - __registry__\
 `src/domain/*/registry.py`\
-`SparsifierRegistry`, `TransformRegistry`, and `MetricRegistry` provide global access points to fund plugin classes
+`SparsifierRegistry`, `TransformRegistry`, and `MetricRegistry` provide global access points to find plugin classes
 by string keys.
 - __plugin__\
 `src/domain/common/plugin_discovery.py`\

@@ -1,13 +1,4 @@
 networkx
 numpy
-pandas
-fastapi
-uvicorn
-pydantic
-sqlalchemy
-tqdm
-PyYAML
-# networkit
 seaborn
 matplotlib
-joblib
