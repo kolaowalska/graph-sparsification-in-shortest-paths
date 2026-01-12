@@ -36,15 +36,15 @@ into distinct layers to ensure that experimental logic remains decoupled
 from infrastructure concerns. the plugin-driven architecture ensures 
 flexibility and (hopefully :) ) makes the program open for future extension.
 
-- the `domain` layer contains the core truth of the system, such as the
+- `domain` layer contains the core truth of the system, such as the
 `Graph` model, `Metric` definitions, and the abstract `GraphTransform` logic;
 it is purely focused on graph theory and the mathematics behind the graph algorithms
-- the `application` layer orchestrates the workflow via the `ExperimentService`,
+- `application` layer orchestrates the workflow via the `ExperimentService`,
 handling the "business logic" of running a research job without needing
 to know how graphs are stored and where they come from
-- the `infrastructure` layer manages details such as reading graphs (`GraphGateway`),
+- `infrastructure` layer manages details such as reading graphs (`GraphGateway`),
 persisting results (`Repository`), and managing database transactions (`Unit of Work`)
-- the `interface` layer provides entry points for the user including a CLI 
+- `interface` layer provides entry points for the user including a CLI 
 for automated batches and an API for potential integration with web dashboards
 
 ### the pipeline
@@ -60,6 +60,8 @@ detailed dictionaries of values and metadata from the calculation
 5. __commitment__: the `Unit of Work` ensures that both the new graph and
 the experiment results are saved to storage simultaneously, preventing 
 dirty data resulting from errors
+
+---
 
 ## quick start
 
