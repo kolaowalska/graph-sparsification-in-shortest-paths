@@ -42,3 +42,7 @@ are placed in their respective `src/domain/` directories and decorated with `@re
 | data transfer object | `ExperimentDTO`, <br/>`GraphSource`                                          | simple objects used to pass data across layer boundaries <br/> (service to api) without exposing internal domain entities                                    |
 | layer supertype      | `GraphTransform`                                                             | provides a common base for all graph algorithms to handle <br/> cross-cutting concerns like execution timing and logging                                     |
 | remote facade        | `ExperimentFacade`                                                           | offers a coarse-grained interface for the client, reducing <br/> the number of calls needed to interact with the service layer                               |
+
+## class diagram
+
+![class diagram](uml_diagram.png)

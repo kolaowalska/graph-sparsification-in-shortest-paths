@@ -8,7 +8,7 @@ from src.domain.metrics.registry import register_metric
 
 # TODO: decide whether diameter should be inf or the diameter of the largest connected component
 @register_metric("diameter")
-class DiameterMetric(Metric):
+class Diameter(Metric):
     INFO = MetricInfo(
         name="diameter",
         version="0.1.0",
