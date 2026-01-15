@@ -5,8 +5,6 @@ from .registry import register_sparsifier
 from ..graph_model import Graph, RunParams
 
 
-# SERVICE STUB & STRATEGY
-
 @register_sparsifier("identity_stub")
 class IdentitySparsifier(Sparsifier, ABC):
     """

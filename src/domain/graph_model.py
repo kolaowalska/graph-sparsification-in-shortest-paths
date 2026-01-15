@@ -1,11 +1,11 @@
-# from __future__ import annotations
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Mapping, MutableMapping, Optional, Dict, Iterable, Tuple, NewType, Callable
 import uuid
 import networkx as nx
 
-# ============ VALUE OBJECTS ============
+# VALUE OBJECTS
 
 GraphID = NewType('GraphID', str)
 RunID = NewType('RunID', str)
@@ -112,20 +112,6 @@ class Graph:
             return self.weighted
         return nx.is_weighted(self.to_networkx(copy=False))
 
-    # def is_weighted(self) -> bool:
-    #     return self.weighted
-
-    # ============ metadata ============
-
-    # def meta(self) -> Mapping[str, Any]:
-    #     return self.metadata
-
-    # def with_meta(self, **pairs: Any) -> "Graph":
-
-    # def to_networkx(self, copy: bool = False) -> nx.Graph | nx.DiGraph:
-    #     """use with caution; prefer Graph methods in domain code and set copy=True for mutations"""
-    #     return self._nx.copy() if copy else self._nx
-
     def copy(self, with_edge_attrs: bool = True) -> "Graph":
         G = self.to_networkx(copy=True)
         nx_copy = G.__class__()
@@ -161,6 +147,7 @@ class Graph:
             return float(data.get(weight_attr, default))
 
         return float(min(d.get(weight_attr, default) for d in data.values()))
+
 
     # FACTORIES
 

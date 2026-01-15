@@ -6,7 +6,6 @@ from src.domain.graph_model import Graph, RunParams
 from src.domain.metrics.base import Metric, MetricInfo, MetricResult
 from src.domain.metrics.registry import register_metric
 
-# TODO: decide whether diameter should be inf or the diameter of the largest connected component
 @register_metric("avg_path_length")
 class AvgPathLength(Metric):
     INFO = MetricInfo(

@@ -23,9 +23,6 @@ class UnitOfWork:
         self._new_experiments.append(experiment)
 
     def commit(self):
-        """
-        [TRANSACTION SCRIPT]
-        """
         print("\n[UNIT OF WORK] committing transaction...")
 
         for g in self._new_graphs:
@@ -41,7 +38,6 @@ class UnitOfWork:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # rollback or ignore if exception happened
         if not self.committed and exc_type is None:
             self.commit()
         elif exc_type:

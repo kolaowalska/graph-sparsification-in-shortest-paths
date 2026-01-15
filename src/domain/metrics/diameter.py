@@ -12,7 +12,7 @@ class Diameter(Metric):
     INFO = MetricInfo(
         name="diameter",
         version="0.1.0",
-        description="diameter; if disconnected uses largest connected component."
+        description="graph diameter; if disconnected uses largest connected component."
     )
 
     def compute(self, graph: Graph, params: RunParams) -> MetricResult:

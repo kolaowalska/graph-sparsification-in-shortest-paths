@@ -1,5 +1,4 @@
 from __future__ import annotations
-import json
 from dataclasses import asdict
 from typing import Dict, Any
 
@@ -10,7 +9,7 @@ from src.infrastructure.persistence.stubs import InMemoryGraphRepository, InMemo
 
 class ExperimentFacade:
     """
-    [REMOTE FACADE] provides a coarse-grained interface for interacting with experiments
+    [REMOTE FACADE] provides a coarse interface for interacting with experiments
     """
     def __init__(self):
         # in a real app this would be injected
