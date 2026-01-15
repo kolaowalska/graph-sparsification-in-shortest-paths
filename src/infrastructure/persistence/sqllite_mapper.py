@@ -1,6 +1,3 @@
-from sqlalchemy.engine import row
-
-
 class SQLiteMapper:
     """
     stub for a future [DATA MAPPER] that handles mapping between Domain Entities and database rows
